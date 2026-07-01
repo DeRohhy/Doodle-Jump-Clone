@@ -1,0 +1,57 @@
+# Compiled object files
+*.o
+*.obj
+
+# Compiled libraries
+*.so
+*.a
+*.lib
+*.dll
+*.dylib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Build directories
+build/
+bin/
+dist/
+cmake-build-*/
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+
+# Logs
+*.log
+
+# Temporary files
+*.tmp
+*.temp
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# VS Code
+.vscode/
+
+# Visual Studio
+.vs/
+*.vcxproj*
+*.sln
+*.user
+
+# CLion / JetBrains
+.idea/
+
+# Debug folders
+Debug/
+Release/
+
+data/musics

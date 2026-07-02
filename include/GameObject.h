@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/System.hpp>
+#include <SFML/Graphics.hpp>
 
 class GameObject {
 public:
@@ -9,7 +10,8 @@ public:
     virtual ~GameObject() = default;
 
     virtual void start() {}
-    virtual void update(float delta) {}
+    virtual void update(float /*delta*/) {}
+    virtual void render(sf::RenderWindow& /*window*/) {}
 
     sf::Vector2f getPosition() const { return position; }
     sf::Vector2f getVelocity() const { return velocity; }

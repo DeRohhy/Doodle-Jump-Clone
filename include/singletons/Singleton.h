@@ -1,5 +1,6 @@
 #pragma once
 
+template<typename type>
 class Singleton {
 public:
     Singleton(const Singleton&) = delete;
@@ -7,8 +8,8 @@ public:
     Singleton& operator=(const Singleton&) = delete;
     Singleton& operator=(const Singleton&&) = delete;
 
-    static Singleton& getInstance() {
-        static Singleton instance;
+    static type& getInstance() {
+        static type instance;
         return instance;
     }
 protected:

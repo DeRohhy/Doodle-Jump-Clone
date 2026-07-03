@@ -1,6 +1,7 @@
 #include "Player.h"
 
 #include "singletons/ResourceManager.h"
+#include "singletons/GameConfig.h"
 #include <iostream>
 
 void Player::start() {
@@ -11,7 +12,7 @@ void Player::start() {
 }
 
 void Player::update(float delta) {
-    velocity.y += 980 * delta;
+    velocity.y += GameConfig::GRAVITY * delta;
     position += velocity * delta;
 
     if (player_sprite) player_sprite->setPosition(position);

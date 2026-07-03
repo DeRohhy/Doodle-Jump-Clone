@@ -1,24 +1,31 @@
 #include "Game.h"
 
 Game::Game() {
-    window = sf::RenderWindow(sf::VideoMode({SCREEN_WIDTH, SCREEN_HEIGHT}),
+    window = sf::RenderWindow(sf::VideoMode({SCREEN_HEIGHT, SCREEN_WIDTH}),
                               "Doodle Jump Clone");
 }
 
 void Game::run() {
+    initGameObjects();
     startGameObjects();
 
     while (window.isOpen()) {
         handleEvents();
-        
         updateGameObjects();
 
         window.clear();
 
-        // TODO: render objects
+        renderGameObjects();
 
         window.display();
     }
+}
+
+void Game::initGameObjects() {
+    player = std::make_unique<Player>(sf::Vector2f(), sf::Vector2f());
+
+    game_objects.push_back(player.get());
+
 }
 
 void Game::startGameObjects() {
@@ -31,6 +38,12 @@ void Game::updateGameObjects() {
     float delta = clock.restart().asSeconds();
     for (const auto& object: game_objects) {
         object->update(delta);
+    }
+}
+
+void Game::renderGameObjects() {
+    for (const auto& object: game_objects) {
+        object->render(window);
     }
 }
 

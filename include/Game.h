@@ -5,6 +5,7 @@
 #include <memory>
 
 #include "GameObject.h"
+#include "Player.h"
 
 class Game {
 public:
@@ -12,15 +13,19 @@ public:
 
     void run();
 private:
-    static constexpr int SCREEN_WIDTH = 720;
-    static constexpr int SCREEN_HEIGHT = 1920;
+    static constexpr int SCREEN_HEIGHT = 720;
+    static constexpr int SCREEN_WIDTH = 1280;
 
     sf::RenderWindow window;
     sf::Clock clock;
 
-    std::vector<std::unique_ptr<GameObject>> game_objects;
+    std::unique_ptr<Player> player;
 
+    std::vector<GameObject*> game_objects;
+
+    void initGameObjects();
     void startGameObjects();
     void updateGameObjects();
+    void renderGameObjects();
     void handleEvents();
 };

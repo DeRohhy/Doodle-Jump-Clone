@@ -1,54 +1,37 @@
-# Compiler
-CXX := g++
+# AI Generated
 
-# Project name
-TARGET_NAME := game.exe
+CXX = g++ # The compiler we use
+# Flags: C++20 standard, show warnings, look in include/ for headers, and auto-generate .d dependency files
+CXXFLAGS = -std=c++20 -Wall -Iinclude -MMD -MP 
 
-# Directories
-SRC_DIR := src
-INC_DIR := include
-BUILD_DIR := build
-BIN_DIR := bin
+# Find every .cpp under src/, automatically
+SRCS = $(shell find src -name '*.cpp')
 
-# Find all .cpp files in src/
-SOURCES := $(wildcard $(SRC_DIR)/*.cpp)
-OBJECTS := $(patsubst $(SRC_DIR)/%.cpp, $(BUILD_DIR)/%.o, $(SOURCES))
+# Turn each src/foo.cpp into build/foo.o
+OBJS = $(SRCS:src/%.cpp=build/%.o)
 
-# SFML and Local Include paths
-SFML_INCLUDE := /mingw64/include
-SFML_LIB := /mingw64/lib
+# The .d (dependency) files Make will auto-generate
+DEPS = $(OBJS:.o=.d)
 
-# Compiler & Linker Flags (CRITICAL: Added -I$(INC_DIR) and -I$(SFML_INCLUDE) here)
-CXXFLAGS := -std=c++17 -Wall -Wextra -I$(INC_DIR) -I$(SFML_INCLUDE)
-LDFLAGS := -L$(SFML_LIB) -lsfml-graphics -lsfml-window -lsfml-system
+# --- SFML Libraries ---
+# Link against the core SFML modules. Add -lsfml-audio or -lsfml-network if you use them.
+LIBS = -lsfml-graphics -lsfml-window -lsfml-system
 
-# Target path
-TARGET := $(BIN_DIR)/$(TARGET_NAME)
+TARGET = DoodleJumpClone
 
-# Default target
-all: $(TARGET)
+# --- Link phase: all .o files into the program ---
+$(TARGET): $(OBJS)
+	$(CXX) $(OBJS) -o $@ $(LIBS)
 
-# Link step: matches object files to binary
-$(TARGET): $(OBJECTS) | $(BIN_DIR)
-	$(CXX) $(OBJECTS) -o $(TARGET) $(LDFLAGS)
-
-# Compile step: compiles individual .cpp files to .o files using CXXFLAGS
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp | $(BUILD_DIR)
+# --- Compile phase: one pattern rule for ALL files ---
+build/%.o: src/%.cpp
+	@mkdir -p $(dir $@)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Create directories safely using Windows-compatible fallback
-$(BUILD_DIR):
-	@mkdir $(BUILD_DIR) 2>nul || mkdir -p $(BUILD_DIR)
+# Pull in the auto-generated header dependencies
+-include $(DEPS)
 
-$(BIN_DIR):
-	@mkdir $(BIN_DIR) 2>nul || mkdir -p $(BIN_DIR)
-
-# Clean
 clean:
-	@rm -rf $(BUILD_DIR) $(BIN_DIR) 2>nul || rmdir /s /q $(BUILD_DIR) $(BIN_DIR) 2>nul || true
+	rm -rf build $(TARGET)
 
-# Run
-run: $(TARGET)
-	./$(TARGET)
-
-.PHONY: all clean run
+.PHONY: clean

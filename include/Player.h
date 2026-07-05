@@ -16,6 +16,8 @@ public:
     Player(sf::Vector2f _position, sf::Vector2f _velocity)
         : GameObject(_position, _velocity) {}
 
+    sf::FloatRect getBounds();
+
     void start() override;
     void update(float delta) override;
     void render(sf::RenderWindow& window) override;
@@ -23,7 +25,6 @@ public:
 
 private:
     const std::string RIGHT_DOODLE_PATH = "assets/right_doodle.png";
-    static constexpr float SPRITE_SCALE = 0.7f;
     static constexpr float JUMP_FACTOR = 800.f;
     static constexpr float TOP_SPEED = 700.f;
     static constexpr float VELOCITY_POWER = 0.99f;

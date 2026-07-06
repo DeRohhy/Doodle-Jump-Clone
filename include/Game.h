@@ -31,4 +31,5 @@ private:
     void handleEvents();
     void CheckPlatformCollisons();
     void lerpCameraPosition(float delta);
+    void removeOffScreenPlatforms ();
 };

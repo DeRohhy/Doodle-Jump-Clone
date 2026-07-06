@@ -1,6 +1,8 @@
 #include "Game.h"
 #include "singletons/GameConfig.h"
 #include <cmath>
+#include <algorithm>
+#include <iostream>
 
 Game::Game() {
     window = sf::RenderWindow(sf::VideoMode({GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT}),
@@ -20,6 +22,7 @@ void Game::run() {
         handleEvents();
         CheckPlatformCollisons();
         updateGameObjects();
+        removeOffScreenPlatforms ();
 
         window.clear();
         window.setView(camera);
@@ -100,4 +103,13 @@ void Game::lerpCameraPosition(float delta) {
     const float new_y = camera_center_y + (target_y - threshold) * blend;
 
     camera.setCenter({camera.getCenter().x, new_y});
+}
+
+void Game::removeOffScreenPlatforms() {
+    const float camera_bottom = camera.getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
+    while (!platforms.empty() && platforms[0]->getPosition().y > camera_bottom) {
+        game_objects.erase(std::find(game_objects.begin(), game_objects.end(), platforms[0].get()));
+        platforms[0].release();
+        platforms.erase(platforms.begin());
+    }
 }

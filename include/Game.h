@@ -14,7 +14,7 @@ public:
 
     void run();
 private:
-
+    sf::View camera;
 
     sf::RenderWindow window;
     sf::Clock clock;
@@ -30,4 +30,5 @@ private:
     void renderGameObjects();
     void handleEvents();
     void CheckPlatformCollisons();
+    void lerpCameraPosition(float delta);
 };

@@ -25,6 +25,7 @@ public:
     void handleMovement(float delta);
     void handleJump();
     void handlePlatformCollision(Platform* platform);
+    void handleScreenWrapping();
     
 
 private:

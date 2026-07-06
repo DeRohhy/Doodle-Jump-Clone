@@ -28,11 +28,14 @@ void Player::start() {
 }
 
 void Player::update(float delta) {
+    handleScreenWrapping();
     handleMovement(delta);
     velocity.y += GameConfig::GRAVITY * delta;
     position += velocity * delta;
 
     if (player_sprite) player_sprite->setPosition(position);
+
+
 }
 
 void Player::render(sf::RenderWindow& window) {
@@ -85,4 +88,15 @@ void Player::setDirection(Direction new_direction) {
     } else {
         player_sprite->setScale({GameConfig::SPRITE_SCALE, GameConfig::SPRITE_SCALE});
     }
+}
+
+void Player::handleScreenWrapping() {
+    static constexpr float margin = 10.f;
+    sf::Vector2f center_of_feet_pos = position + player_sprite->getOrigin();
+
+    if (center_of_feet_pos.x < margin) {
+        position.x = GameConfig::SCREEN_WIDTH - player_sprite->getOrigin().x;
+    } else if (center_of_feet_pos.x > GameConfig::SCREEN_WIDTH + margin) {
+        position.x = 0;
+    } 
 }

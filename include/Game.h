@@ -6,6 +6,7 @@
 
 #include "GameObject.h"
 #include "Player.h"
+#include "platforms/NormalPlatform.h"
 
 class Game {
 public:
@@ -13,13 +14,14 @@ public:
 
     void run();
 private:
-    static constexpr int SCREEN_HEIGHT = 720;
-    static constexpr int SCREEN_WIDTH = 1280;
+    static constexpr unsigned int SCREEN_WIDTH = 600;
+    static constexpr unsigned int SCREEN_HEIGHT = 800;
 
     sf::RenderWindow window;
     sf::Clock clock;
 
     std::unique_ptr<Player> player;
+    std::vector<std::unique_ptr<Platform>> platforms;
 
     std::vector<GameObject*> game_objects;
 
@@ -28,4 +30,5 @@ private:
     void updateGameObjects();
     void renderGameObjects();
     void handleEvents();
+    void CheckPlatformCollisons();
 };

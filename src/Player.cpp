@@ -21,7 +21,7 @@ void Player::start() {
     // the bottom of the feet is at local y = 0
     // and the center between player legs is at local x = 0
     sf::Vector2f local_bound = player_sprite->getLocalBounds().size;
-    static constexpr float offset_percentage = 3.0f / 8.0f;
+    static constexpr float offset_percentage = 3.f / 8.f;
     player_sprite->setOrigin({offset_percentage * local_bound.x, local_bound.y});
 
     player_sprite->setScale({GameConfig::SPRITE_SCALE, GameConfig::SPRITE_SCALE});
@@ -52,6 +52,24 @@ void Player::handleMovement(float delta) {
     float delta_velocity = std::pow(std::abs(speed_difference) * ACCEL_RATE, VELOCITY_POWER) * (speed_difference > 0 ? 1 : -1);
 
     velocity.x += delta_velocity * delta;
+}
+
+void Player::handleJump() {
+    velocity.y = -JUMP_FACTOR;
+}
+
+
+void Player::handlePlatformCollision(Platform* platform) {
+    static constexpr float epsilon = 5.f;
+    if (velocity.y < 0 || position.y > platform->getPosition().y + epsilon)
+        return;
+
+    // findIntersection returns std::optional<sf::FloatRect>
+    if (!static_cast<bool>(getBounds().findIntersection(platform->getBounds())))
+        return;
+
+    position.y = platform->getPosition().y;
+    handleJump();
 }
 
 

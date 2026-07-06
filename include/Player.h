@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameObject.h"
+#include "platforms/Platform.h"
 
 #include <SFML/Graphics.hpp>
 #include <string>
@@ -22,6 +23,9 @@ public:
     void update(float delta) override;
     void render(sf::RenderWindow& window) override;
     void handleMovement(float delta);
+    void handleJump();
+    void handlePlatformCollision(Platform* platform);
+    
 
 private:
     const std::string RIGHT_DOODLE_PATH = "assets/right_doodle.png";

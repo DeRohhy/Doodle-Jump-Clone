@@ -1,7 +1,8 @@
 #include "Game.h"
+#include "singletons/GameConfig.h"
 
 Game::Game() {
-    window = sf::RenderWindow(sf::VideoMode({SCREEN_WIDTH, SCREEN_HEIGHT}),
+    window = sf::RenderWindow(sf::VideoMode({GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT}),
                               "Doodle Jump Clone");
 }
 
@@ -27,16 +28,15 @@ void Game::initGameObjects() {
     player = std::make_unique<Player>(sf::Vector2f(), sf::Vector2f());
     game_objects.push_back(player.get());
 
-    // test!
-    /*    
-    std::unique_ptr test_platform = std::make_unique<NormalPlatform>(sf::Vector2f{300, 600});
-    platforms.push_back(std::move(test_platform));
-    game_objects.push_back(platforms.back().get());
+//    test!
+//     std::unique_ptr test_platform = std::make_unique<NormalPlatform>(sf::Vector2f{300, 600});
+//     platforms.push_back(std::move(test_platform));
+//     game_objects.push_back(platforms.back().get());
 
-    test_platform = std::make_unique<NormalPlatform>(sf::Vector2f{500, 300});
-    platforms.push_back(std::move(test_platform));
-    game_objects.push_back(platforms.back().get());
-    */
+//     test_platform = std::make_unique<NormalPlatform>(sf::Vector2f{500, 300});
+//     platforms.push_back(std::move(test_platform));
+//     game_objects.push_back(platforms.back().get());
+    
 }
 
 void Game::startGameObjects() {

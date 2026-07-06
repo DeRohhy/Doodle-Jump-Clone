@@ -14,8 +14,7 @@ public:
 
     void run();
 private:
-    static constexpr unsigned int SCREEN_WIDTH = 600;
-    static constexpr unsigned int SCREEN_HEIGHT = 800;
+
 
     sf::RenderWindow window;
     sf::Clock clock;

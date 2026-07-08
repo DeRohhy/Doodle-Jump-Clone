@@ -34,6 +34,7 @@ private:
     static constexpr float TOP_SPEED = 700.f;
     static constexpr float VELOCITY_POWER = 0.99f;
     static constexpr float ACCEL_RATE = 7.f;
+    static constexpr float SPRITE_SCALE = 0.75f;
 
     sf::Texture right_doodle_texture;
     // SFML 3 removed sf::Sprite’s default constructor

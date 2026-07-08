@@ -24,7 +24,7 @@ void Player::start() {
     static constexpr float offset_percentage = 3.f / 8.f;
     player_sprite->setOrigin({offset_percentage * local_bound.x, local_bound.y});
 
-    player_sprite->setScale({GameConfig::SPRITE_SCALE, GameConfig::SPRITE_SCALE});
+    player_sprite->setScale({SPRITE_SCALE, SPRITE_SCALE});
 }
 
 void Player::update(float delta) {
@@ -84,9 +84,9 @@ void Player::setDirection(Direction new_direction) {
     if (!player_sprite) return;
 
     if (new_direction == Direction::LEFT) {
-        player_sprite->setScale({-GameConfig::SPRITE_SCALE, GameConfig::SPRITE_SCALE});
+        player_sprite->setScale({-SPRITE_SCALE, SPRITE_SCALE});
     } else {
-        player_sprite->setScale({GameConfig::SPRITE_SCALE, GameConfig::SPRITE_SCALE});
+        player_sprite->setScale({SPRITE_SCALE, SPRITE_SCALE});
     }
 }
 

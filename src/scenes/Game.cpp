@@ -1,7 +1,7 @@
 #include "scenes/Game.h"
 
-#include "singletons/GameConfig.h"
 #include "singletons/ResourceManager.h"
+#include "singletons/GameSettings.h"
 #include "scenes/GameOverMenu.h"
 #include "scenes/SceneManager.h"
 
@@ -16,13 +16,25 @@ Game::Game(SceneManager& _manager) : Scene(_manager) {
 
     font = ResourceManager<sf::Font>::getInstance().get(FONT_PATH);
 
+    
     player = std::make_unique<Player>(
-        sf::Vector2f{GameConfig::SCREEN_WIDTH / 2, GameConfig::SCREEN_HEIGHT / 2},
+        sf::Vector2f{GameConfig::SCREEN_WIDTH / 2, BOTTOM_Y},
         sf::Vector2f()
     );
+
+    font = ResourceManager<sf::Font>::getInstance().get(FONT_PATH);
+
+    score = 0;
 }
 
 void Game::start() {
+    score_label.emplace(font);
+    score_label->setCharacterSize(GameConfig::NORMAL_FONT_SIZE);
+    score_label->setFillColor(GameConfig::MAIN_COLOR);
+    score_label->setStyle(sf::Text::Bold);
+    const int score_label_x = 20, score_label_y = 20.f;
+    score_label->setPosition({score_label_x, score_label_y});
+
     player->start();
 
     player->handleJump();
@@ -33,6 +45,13 @@ void Game::start() {
 }
 
 void Game::update(float delta) {
+    int new_score = BOTTOM_Y - static_cast<int>(player->getPosition().y);
+    if (new_score > score)
+    {
+        score = new_score;
+        score_label->setString("Score: " + std::to_string(score));
+    }
+
     player->update(delta);
     for (const auto& chunk: chunks) {
         chunk->update(delta);
@@ -44,6 +63,8 @@ void Game::update(float delta) {
 
     const float camera_bottom_y = camera.getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
     if (player->getPosition().y > camera_bottom_y) {
+        GameSettings::getInstance().setLastScore(score);
+        GameSettings::getInstance().setHighScore(score);
         manager.changeScene(std::make_unique<GameOverMenu>(manager));
     }
 }
@@ -58,14 +79,17 @@ void Game::handleEvents(sf::RenderWindow& window) {
 
 void Game::render(sf::RenderWindow& window) {
     window.setView(window.getDefaultView());
-    if (background_sprite.has_value())
-        window.draw(background_sprite.value());
+    window.draw(background_sprite.value());
+
     
     window.setView(camera);
     for (const auto& chunk: chunks) {
         chunk->render(window);
     }
     player->render(window);
+
+    window.setView(window.getDefaultView());
+    window.draw(score_label.value());
 }
 
 void Game::lerpCameraPosition(float delta) {

@@ -2,6 +2,7 @@
 
 #include "singletons/ResourceManager.h"
 #include "singletons/GameConfig.h"
+#include "singletons/GameSettings.h"
 #include "scenes/Game.h"
 #include "scenes/SceneManager.h"
 #include <memory>
@@ -28,7 +29,7 @@ void MainMenu::start() {
 
 
     high_score.emplace(font);
-    high_score->setString("High Score: ");
+    high_score->setString("High Score: " + std::to_string(GameSettings::getInstance().getHighScore()));
     high_score->setCharacterSize(GameConfig::NORMAL_FONT_SIZE);
     high_score->setFillColor(GameConfig::MAIN_COLOR);
     high_score->setStyle(sf::Text::Bold);

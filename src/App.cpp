@@ -1,5 +1,6 @@
 #include "App.h"
 
+#include "singletons/GameSettings.h"
 #include "scenes/MainMenu.h"
 
 void App::run() {

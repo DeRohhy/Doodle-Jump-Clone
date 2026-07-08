@@ -91,12 +91,14 @@ void Player::setDirection(Direction new_direction) {
 }
 
 void Player::handleScreenWrapping() {
-    static constexpr float margin = 10.f;
+    static constexpr float left_margin = 10.f;
+    static constexpr float right_margin = 50.f;
     sf::Vector2f center_of_feet_pos = position + player_sprite->getOrigin();
 
-    if (center_of_feet_pos.x < margin) {
-        position.x = GameConfig::SCREEN_WIDTH - player_sprite->getOrigin().x;
-    } else if (center_of_feet_pos.x > GameConfig::SCREEN_WIDTH + margin) {
-        position.x = 0;
+    if (center_of_feet_pos.x < left_margin) {
+        // position.x = GameConfig::SCREEN_WIDTH - player_sprite->getOrigin().x;
+        position.x = GameConfig::SCREEN_WIDTH;
+    } else if (center_of_feet_pos.x > GameConfig::SCREEN_WIDTH + right_margin) {
+        position.x = left_margin;
     } 
 }

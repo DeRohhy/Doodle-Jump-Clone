@@ -21,7 +21,7 @@ void Platform::start() {
     sf::Vector2f local_bound = platform_sprite->getLocalBounds().size;
     platform_sprite->setOrigin({local_bound.x / 2.0f, 0.0f});
 
-    platform_sprite->setScale({GameConfig::SPRITE_SCALE, GameConfig::SPRITE_SCALE});
+    platform_sprite->setScale({SPRITE_SCALE, SPRITE_SCALE});
     platform_sprite->setPosition(position);
 }
 

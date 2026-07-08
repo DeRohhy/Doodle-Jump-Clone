@@ -2,8 +2,9 @@
 
 #include "singletons/ResourceManager.h"
 #include "singletons/GameConfig.h"
-#include <iostream>
-
+#include "scenes/Game.h"
+#include "scenes/SceneManager.h"
+#include <memory>
 
 
 MainMenu::MainMenu(SceneManager& _manager) : Scene(_manager) {
@@ -61,9 +62,8 @@ void MainMenu::handleEvents(sf::RenderWindow& window) {
                 sf::Vector2i mouse_position = mouse_pressed->position;
                 
                 if (start_button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_position))) {
-                    std::cout << "playing!!!\n";
+                    manager.changeScene(std::make_unique<Game>(manager));
                 }
-
             }
         }
     }

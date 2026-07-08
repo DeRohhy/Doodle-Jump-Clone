@@ -1,44 +1,41 @@
 #pragma once
 
+
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <memory>
 #include <deque>
 #include <string>
 
-#include "GameObject.h"
+#include "scenes/Scene.h"
 #include "Player.h"
 #include "Chunk.h"
 
-class Game {
+class Game : public Scene {
 public:
-    Game();
+    Game(SceneManager& _manager);
 
-    void run();
+    void start() override;
+    void update(float delta) override;
+    void handleEvents(sf::RenderWindow& window) override;
+    void render(sf::RenderWindow& window) override;
 private:
     const std::string BACKGROUND_PATH = "assets/background.png";
+    const std::string FONT_PATH = "assets/ariblk.ttf";
+    
     sf::View camera;
 
-    sf::RenderWindow window;
-    sf::Clock clock;
+    sf::Texture background_texture;
+    std::optional<sf::Sprite> background_sprite; 
+
+    sf::Font font;
 
     std::unique_ptr<Player> player;
     std::deque<std::unique_ptr<Chunk>> chunks;
 
-    sf::Texture background_texture;
-    // SFML 3 removed sf::Sprite’s default constructor
-    // so we'll get an error if we say:
-    // sf::Sprite player_sprite;
-    std::optional<sf::Sprite> background_sprite; 
-
-
-    void initGameObjects();
-    void startGameObjects();
-    void updateGameObjects();
-    void renderGameObjects();
-    void handleEvents();
     void lerpCameraPosition(float delta);
     void checkChunkGeneration();
     void handleChunkDeletion();
     void generateChunk();
+
 };

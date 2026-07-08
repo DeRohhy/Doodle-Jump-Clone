@@ -1,14 +1,9 @@
-#include "Game.h"
+#include "scenes/Game.h"
+
 #include "singletons/GameConfig.h"
 #include "singletons/ResourceManager.h"
-#include <cmath>
-#include <algorithm>
-#include <iostream>
 
-Game::Game() {
-    window = sf::RenderWindow(sf::VideoMode({GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT}),
-                              "Doodle Jump Clone");
-
+Game::Game(SceneManager& _manager) : Scene(_manager) {
     camera = sf::View(sf::FloatRect(
         {0, 0},
         {GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT}
@@ -16,71 +11,54 @@ Game::Game() {
 
     background_texture = ResourceManager<sf::Texture>::getInstance().get(BACKGROUND_PATH);
     background_sprite.emplace(background_texture);
-}
 
-void Game::run() {
-    initGameObjects();
-    startGameObjects();
+    font = ResourceManager<sf::Font>::getInstance().get(FONT_PATH);
 
-    while (window.isOpen()) {
-        handleEvents();
-        updateGameObjects();
-        checkChunkGeneration();
-        handleChunkDeletion();
-
-        // Reset the view to default for drawing static UI elements
-        window.setView(window.getDefaultView());
-        if (background_sprite.has_value())
-            window.draw(background_sprite.value());
-        
-
-        window.setView(camera);
-
-        renderGameObjects();
-
-
-
-        window.display();
-    }
-}
-
-void Game::initGameObjects() {
     player = std::make_unique<Player>(
         sf::Vector2f{GameConfig::SCREEN_WIDTH / 2, GameConfig::SCREEN_HEIGHT / 2},
         sf::Vector2f()
     );
+}
 
+void Game::start() {
+    player->start();
+
+    player->handleJump();
+    
     // generate 2 starting chunks
     generateChunk();
     generateChunk();
 }
 
-void Game::startGameObjects() {
-    player->start();
-}
-
-void Game::updateGameObjects() {
-    float delta = clock.restart().asSeconds();
+void Game::update(float delta) {
     player->update(delta);
     for (const auto& chunk: chunks) {
         chunk->update(delta);
     }
+
+    checkChunkGeneration();
+    handleChunkDeletion();
     lerpCameraPosition(delta);
 }
 
-void Game::renderGameObjects() {
-    for (const auto& chunk: chunks) {
-        chunk->render(window);
-    }
-    player->render(window);
-}
-
-void Game::handleEvents() {
+void Game::handleEvents(sf::RenderWindow& window) {
     while (const std::optional event = window.pollEvent()) {
         if (event->is<sf::Event::Closed>()) {
             window.close();
         }
+    }   
+}
+
+void Game::render(sf::RenderWindow& window) {
+    window.setView(window.getDefaultView());
+    if (background_sprite.has_value())
+        window.draw(background_sprite.value());
+    
+    window.setView(camera);
+    for (const auto& chunk: chunks) {
+        chunk->render(window);
     }
+    player->render(window);
 }
 
 void Game::lerpCameraPosition(float delta) {
@@ -108,11 +86,10 @@ void Game::checkChunkGeneration() {
     const float threshold = camera_center_y 
                             - GameConfig::CAMERA_TRIGGER_PERCENTAGE * (GameConfig::SCREEN_HEIGHT / 2.f);
     
-    if (target_y >= threshold || chunks.size() >= 3) {
-        return;
-    }
-
-    generateChunk();
+    static const int MAX_CHUNKS_ALLOWED = 3;
+    if (target_y <+ threshold || chunks.size() < MAX_CHUNKS_ALLOWED) {
+        generateChunk();    
+    } 
 }
 
 void Game::handleChunkDeletion() {
@@ -136,5 +113,5 @@ void Game::generateChunk() {
     );
     new_chunk->start();
     
-    chunks.push_front(std::move(new_chunk));
+    chunks.push_front(std::move(new_chunk));    
 }

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "scenes/Scene.h"
 
 #include <SFML/Graphics.hpp>

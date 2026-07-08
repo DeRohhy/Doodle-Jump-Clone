@@ -1,5 +1,7 @@
 #pragma once
 
+#include <SFML/Graphics.hpp>
+
 #include "singletons/Singleton.h"
 
 class GameConfig : public Singleton<GameConfig> {
@@ -12,4 +14,7 @@ public:
     static constexpr unsigned int CHUNK_HEIGHT = SCREEN_HEIGHT / 2;
     static constexpr float MIN_OBJ_GAP = 80.f;
     static constexpr float MAX_OBJ_GAP = 150.f;
+    static constexpr int TITLE_FONT_SIZE = 48;
+    static constexpr int NORMAL_FONT_SIZE = 24;
+    static constexpr sf::Color MAIN_COLOR = sf::Color(23, 54, 93);
 };

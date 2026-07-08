@@ -5,11 +5,11 @@
 // Constants: UPPER_SNAKE_CASE
 // =================================================
 
-#include "Game.h"
+#include "App.h"
 
 int main() {
-    Game game;
-    game.run();
+    App app;
+    app.run();
 
     return 0;
 }

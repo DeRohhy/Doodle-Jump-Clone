@@ -25,3 +25,15 @@ type& ResourceManager<type>::get(const std::string& file_path) {
     }
     return resources[file_path];
 }
+
+template<>
+inline sf::Font& ResourceManager<sf::Font>::get(const std::string& file_path) {
+    if (resources.find(file_path) == resources.end()) {
+        sf::Font new_resource;
+        if (!new_resource.openFromFile(file_path)) {
+            throw std::runtime_error("ResourceManager: Couldn't load font: " + file_path);
+        }
+        resources[file_path] = std::move(new_resource);
+    }
+    return resources[file_path];
+}

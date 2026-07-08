@@ -3,10 +3,11 @@
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <memory>
+#include <deque>
 
 #include "GameObject.h"
 #include "Player.h"
-#include "platforms/NormalPlatform.h"
+#include "Chunk.h"
 
 class Game {
 public:
@@ -20,6 +21,7 @@ private:
     sf::Clock clock;
 
     std::unique_ptr<Player> player;
+    std::deque<std::unique_ptr<Chunk>> chunks;
 
     void initGameObjects();
     void startGameObjects();
@@ -27,4 +29,7 @@ private:
     void renderGameObjects();
     void handleEvents();
     void lerpCameraPosition(float delta);
+    void checkChunkGeneration();
+    void handleChunkDeletion();
+    void generateChunk();
 };

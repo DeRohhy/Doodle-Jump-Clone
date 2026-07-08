@@ -12,6 +12,9 @@ MainMenu::MainMenu(SceneManager& _manager) : Scene(_manager) {
     background_sprite.emplace(background_texture);
 
     font = ResourceManager<sf::Font>::getInstance().get(FONT_PATH);
+    button_texture = ResourceManager<sf::Texture>::getInstance().get(BUTTON_PATH);
+    start_button.emplace(button_texture);
+    start_button->setScale({SPRITE_SCALE, SPRITE_SCALE});
 }
 
 void MainMenu::start() {
@@ -33,11 +36,7 @@ void MainMenu::start() {
     positionText(high_score.value(), high_score_x, high_score_y);
 
 
-    button_texture = ResourceManager<sf::Texture>::getInstance().get(BUTTON_PATH);
-    start_button.emplace(button_texture);
-    start_button->setScale({SPRITE_SCALE, SPRITE_SCALE});
-
-    sf::Vector2f button_bound = start_button->getLocalBounds().size;
+    const sf::Vector2f button_bound = start_button->getLocalBounds().size;
     start_button->setOrigin({button_bound.x / 2.f, button_bound.y / 2.f});
     start_button->setPosition({GameConfig::SCREEN_WIDTH / 2, GameConfig::SCREEN_HEIGHT / 2});
 
@@ -55,8 +54,7 @@ void MainMenu::handleEvents(sf::RenderWindow& window) {
     while (const std::optional event = window.pollEvent()) {
         if (event->is<sf::Event::Closed>()) {
             window.close();
-        }
-        else if (const auto* mouse_pressed = event->getIf<sf::Event::MouseButtonPressed>())
+        } else if (const auto* mouse_pressed = event->getIf<sf::Event::MouseButtonPressed>())
         {
             if (mouse_pressed->button ==  sf::Mouse::Button::Left) {
                 sf::Vector2i mouse_position = mouse_pressed->position;
@@ -71,6 +69,7 @@ void MainMenu::handleEvents(sf::RenderWindow& window) {
 
 
 void MainMenu::render(sf::RenderWindow& window) {  
+    window.setView(window.getDefaultView());
     window.clear();
     window.draw(background_sprite.value());
     window.draw(title.value());

@@ -17,4 +17,5 @@ public:
     static constexpr int TITLE_FONT_SIZE = 48;
     static constexpr int NORMAL_FONT_SIZE = 24;
     static constexpr sf::Color MAIN_COLOR = sf::Color(23, 54, 93);
+    static constexpr sf::Color WARNING_COLOR = sf::Color(254, 0, 0);
 };

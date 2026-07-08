@@ -2,6 +2,8 @@
 
 #include "singletons/GameConfig.h"
 #include "singletons/ResourceManager.h"
+#include "scenes/GameOverMenu.h"
+#include "scenes/SceneManager.h"
 
 Game::Game(SceneManager& _manager) : Scene(_manager) {
     camera = sf::View(sf::FloatRect(
@@ -39,6 +41,11 @@ void Game::update(float delta) {
     checkChunkGeneration();
     handleChunkDeletion();
     lerpCameraPosition(delta);
+
+    const float camera_bottom_y = camera.getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
+    if (player->getPosition().y > camera_bottom_y) {
+        manager.changeScene(std::make_unique<GameOverMenu>(manager));
+    }
 }
 
 void Game::handleEvents(sf::RenderWindow& window) {

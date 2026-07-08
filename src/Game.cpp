@@ -1,5 +1,6 @@
 #include "Game.h"
 #include "singletons/GameConfig.h"
+#include "singletons/ResourceManager.h"
 #include <cmath>
 #include <algorithm>
 #include <iostream>
@@ -12,6 +13,9 @@ Game::Game() {
         {0, 0},
         {GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT}
     ));
+
+    background_texture = ResourceManager<sf::Texture>::getInstance().get(BACKGROUND_PATH);
+    background_sprite.emplace(background_texture);
 }
 
 void Game::run() {
@@ -24,14 +28,17 @@ void Game::run() {
         checkChunkGeneration();
         handleChunkDeletion();
 
-        window.clear();
+        // Reset the view to default for drawing static UI elements
+        window.setView(window.getDefaultView());
+        if (background_sprite.has_value())
+            window.draw(background_sprite.value());
+        
+
         window.setView(camera);
 
         renderGameObjects();
 
-        // Reset the view to default for drawing static UI elements
-        window.setView(window.getDefaultView());
-        // ...
+
 
         window.display();
     }
@@ -62,10 +69,10 @@ void Game::updateGameObjects() {
 }
 
 void Game::renderGameObjects() {
-    player->render(window);
     for (const auto& chunk: chunks) {
         chunk->render(window);
     }
+    player->render(window);
 }
 
 void Game::handleEvents() {

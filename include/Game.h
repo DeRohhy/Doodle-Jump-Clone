@@ -4,6 +4,7 @@
 #include <vector>
 #include <memory>
 #include <deque>
+#include <string>
 
 #include "GameObject.h"
 #include "Player.h"
@@ -15,6 +16,7 @@ public:
 
     void run();
 private:
+    const std::string BACKGROUND_PATH = "assets/background.png";
     sf::View camera;
 
     sf::RenderWindow window;
@@ -22,6 +24,13 @@ private:
 
     std::unique_ptr<Player> player;
     std::deque<std::unique_ptr<Chunk>> chunks;
+
+    sf::Texture background_texture;
+    // SFML 3 removed sf::Sprite’s default constructor
+    // so we'll get an error if we say:
+    // sf::Sprite player_sprite;
+    std::optional<sf::Sprite> background_sprite; 
+
 
     void initGameObjects();
     void startGameObjects();

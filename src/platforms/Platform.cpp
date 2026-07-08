@@ -7,7 +7,7 @@ sf::FloatRect Platform::getBounds() {
     if (!platform_sprite) {
         return sf::FloatRect();
     }
-
+    
     return platform_sprite->getGlobalBounds();
 }
 

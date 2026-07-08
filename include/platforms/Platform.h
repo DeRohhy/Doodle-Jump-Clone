@@ -17,7 +17,7 @@ public:
 
     void start() override;
     void render(sf::RenderWindow& window) override;
-private:
+protected:
     static constexpr float SPRITE_SCALE = 1.1f;
     std::string platform_path;
 

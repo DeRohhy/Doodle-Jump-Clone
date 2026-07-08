@@ -19,6 +19,7 @@ void Chunk::start() {
 }
 
 void Chunk::update(float delta) {
+    checkPlatformCollisions();
     for (const auto& platform: platforms) {
         platform->update(delta);
     }
@@ -32,4 +33,10 @@ void Chunk::render(sf::RenderWindow& window) {
 
 inline float Chunk::getRandomGap() {
     return random_generator.randomFloatRange(GameConfig::MIN_OBJ_GAP, GameConfig::MAX_OBJ_GAP);
+}
+
+void Chunk::checkPlatformCollisions() {
+    for (auto const& platform: platforms) {
+        player->handlePlatformCollision(platform.get());
+    }
 }

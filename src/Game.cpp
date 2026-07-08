@@ -20,9 +20,7 @@ void Game::run() {
 
     while (window.isOpen()) {
         handleEvents();
-        CheckPlatformCollisons();
         updateGameObjects();
-        removeOffScreenPlatforms ();
 
         window.clear();
         window.setView(camera);
@@ -38,39 +36,26 @@ void Game::run() {
 }
 
 void Game::initGameObjects() {
-    player = std::make_unique<Player>(sf::Vector2f(), sf::Vector2f());
-    game_objects.push_back(player.get());
+    player = std::make_unique<Player>(
+        sf::Vector2f{GameConfig::SCREEN_WIDTH / 2, GameConfig::SCREEN_HEIGHT / 2},
+        sf::Vector2f()
+    );
 
-//    test!
-    std::unique_ptr test_platform = std::make_unique<NormalPlatform>(sf::Vector2f{300, 600});
-    platforms.push_back(std::move(test_platform));
-    game_objects.push_back(platforms.back().get());
-
-    test_platform = std::make_unique<NormalPlatform>(sf::Vector2f{100, 100});
-    platforms.push_back(std::move(test_platform));
-    game_objects.push_back(platforms.back().get());
-    
 }
 
 void Game::startGameObjects() {
-    for (const auto& object: game_objects) {
-        object->start();
-    }
+    player->start();
 }
 
 void Game::updateGameObjects() {
     float delta = clock.restart().asSeconds();
-    for (const auto& object: game_objects) {
-        object->update(delta);
-    }
+    player->update(delta);
 
     lerpCameraPosition(delta);
 }
 
 void Game::renderGameObjects() {
-    for (const auto& object: game_objects) {
-        object->render(window);
-    }
+    player->render(window);
 }
 
 void Game::handleEvents() {
@@ -78,12 +63,6 @@ void Game::handleEvents() {
         if (event->is<sf::Event::Closed>()) {
             window.close();
         }
-    }
-}
-
-void Game::CheckPlatformCollisons() {
-    for (const auto& platform : platforms) {
-        player->handlePlatformCollision(platform.get());
     }
 }
 
@@ -103,13 +82,4 @@ void Game::lerpCameraPosition(float delta) {
     const float new_y = camera_center_y + (target_y - threshold) * blend;
 
     camera.setCenter({camera.getCenter().x, new_y});
-}
-
-void Game::removeOffScreenPlatforms() {
-    const float camera_bottom = camera.getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
-    while (!platforms.empty() && platforms[0]->getPosition().y > camera_bottom) {
-        game_objects.erase(std::find(game_objects.begin(), game_objects.end(), platforms[0].get()));
-        platforms[0].release();
-        platforms.erase(platforms.begin());
-    }
 }

@@ -20,16 +20,11 @@ private:
     sf::Clock clock;
 
     std::unique_ptr<Player> player;
-    std::vector<std::unique_ptr<Platform>> platforms;
-
-    std::vector<GameObject*> game_objects;
 
     void initGameObjects();
     void startGameObjects();
     void updateGameObjects();
     void renderGameObjects();
     void handleEvents();
-    void CheckPlatformCollisons();
     void lerpCameraPosition(float delta);
-    void removeOffScreenPlatforms ();
 };

@@ -10,4 +10,7 @@ public:
     static constexpr float GRAVITY = 980.f;
     static constexpr float CAMERA_TRIGGER_PERCENTAGE = 0.05f;
     static constexpr float CAMERA_LERP_SPEED = 15.f;
+    static constexpr unsigned int CHUNK_HEIGHT = SCREEN_HEIGHT / 2;
+    static constexpr float MIN_OBJ_GAP = 40.f;
+    static constexpr float MAX_OBJ_GAP = 60.f;
 };

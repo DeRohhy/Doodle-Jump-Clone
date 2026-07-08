@@ -2,6 +2,7 @@
 
 #include "singletons/ResourceManager.h"
 #include "singletons/GameConfig.h"
+#include "platforms/BrokenPlatform.h"
 #include <math.h>
 
 sf::FloatRect Player::getBounds() {
@@ -62,17 +63,13 @@ void Player::handleJump() {
 }
 
 
-void Player::handlePlatformCollision(Platform* platform) {
+bool Player::isCollidingWithPlatform(Platform* platform) {
     static constexpr float epsilon = 5.f;
     if (velocity.y < 0 || position.y > platform->getPosition().y + epsilon)
-        return;
+        return false;
 
     // findIntersection returns std::optional<sf::FloatRect>
-    if (!static_cast<bool>(getBounds().findIntersection(platform->getBounds())))
-        return;
-
-    position.y = platform->getPosition().y;
-    handleJump();
+    return static_cast<bool>(getBounds().findIntersection(platform->getBounds()));
 }
 
 

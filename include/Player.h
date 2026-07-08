@@ -24,7 +24,7 @@ public:
     void render(sf::RenderWindow& window) override;
     void handleMovement(float delta);
     void handleJump();
-    void handlePlatformCollision(Platform* platform);
+    bool isCollidingWithPlatform(Platform* platform);
     void handleScreenWrapping();
     
 

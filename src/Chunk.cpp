@@ -12,7 +12,7 @@ void Chunk::start() {
 
         std::unique_ptr new_platform = std::make_unique<NormalPlatform>(sf::Vector2f{x, y});
         new_platform->start();
-        platforms.push_back(std::move(new_platform));
+        platforms.push_front(std::move(new_platform));
 
         y -= getRandomGap();
     }
@@ -20,6 +20,7 @@ void Chunk::start() {
 
 void Chunk::update(float delta) {
     checkPlatformCollisions();
+    removeOffScreenPlatforms();
     for (const auto& platform: platforms) {
         platform->update(delta);
     }
@@ -38,5 +39,13 @@ inline float Chunk::getRandomGap() {
 void Chunk::checkPlatformCollisions() {
     for (auto const& platform: platforms) {
         player->handlePlatformCollision(platform.get());
+    }
+}
+
+void Chunk::removeOffScreenPlatforms() {
+    const float camera_bottom_y = camera->getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
+    while (!platforms.empty() && platforms.back()->getPosition().y >= camera_bottom_y) {
+        platforms.back().release();
+        platforms.pop_back();
     }
 }

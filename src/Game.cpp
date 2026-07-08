@@ -131,7 +131,8 @@ void Game::generateChunk() {
     
     std::unique_ptr<Chunk> new_chunk = std::make_unique<Chunk>(
         sf::Vector2f({0, chunk_position_y}),
-        player.get()
+        player.get(),
+        &camera
     );
     new_chunk->start();
     

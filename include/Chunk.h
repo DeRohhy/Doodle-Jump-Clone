@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
-#include <vector>
+#include <deque>
 
 #include "singletons/Random.h"
 #include "GameObject.h"
@@ -10,9 +10,9 @@
 
 class Chunk : public GameObject {
 public:
-    Chunk(sf::Vector2f _position, Player* _player)
+    Chunk(sf::Vector2f _position, Player* _player, sf::View* _camera)
         : GameObject(_position, sf::Vector2f()),
-          player(_player) {}
+          player(_player), camera(_camera) {}
 
     void start() override;
     void update(float delta) override;
@@ -20,9 +20,11 @@ public:
 
 private:
     Player* player;
+    sf::View* camera;
     Random& random_generator = Random::getInstance();
-    std::vector<std::unique_ptr<Platform>> platforms;
+    std::deque<std::unique_ptr<Platform>> platforms;
 
     inline float getRandomGap();
     void checkPlatformCollisions();
+    void removeOffScreenPlatforms();
 };

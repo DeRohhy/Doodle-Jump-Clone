@@ -62,14 +62,17 @@ void Player::handleJump() {
     velocity.y = -JUMP_FACTOR;
 }
 
+void Player::handleSpringJump() {
+    velocity.y = -SPRING_JUMP_FACTOR;
+}
 
-bool Player::isCollidingWithPlatform(Platform* platform) {
+bool Player::isColliding(const sf::FloatRect& collider) {
     static constexpr float epsilon = 5.f;
-    if (velocity.y < 0 || position.y > platform->getPosition().y + epsilon)
+    if (velocity.y < 0 || position.y > collider.position.y + epsilon)
         return false;
 
     // findIntersection returns std::optional<sf::FloatRect>
-    return static_cast<bool>(getBounds().findIntersection(platform->getBounds()));
+    return static_cast<bool>(getBounds().findIntersection(collider));
 }
 
 

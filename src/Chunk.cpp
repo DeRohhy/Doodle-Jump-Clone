@@ -5,7 +5,6 @@
 
 #include <memory>
 #include <algorithm>
-#include <iostream>
 
 void Chunk::start() {
     const float top_y = position.y;
@@ -16,19 +15,22 @@ void Chunk::start() {
     while (y >= top_y) {
         float x = random_generator.randomFloatRange(side_margin, GameConfig::SCREEN_WIDTH - side_margin);
 
-        const float BROKEN_PLATFORM_SPAWN_CHANCE = 0.1;
-        const float MOVING_PLATFORM_SPAWN_CHANCE = 0.1;
+        static const float BROKEN_PLATFORM_SPAWN_CHANCE = 0.1;
+        static const float MOVING_PLATFORM_SPAWN_CHANCE = 0.1;
+        static const float SPRINTG_SPAWN_CHANCE = 0.1;
+ 
+        bool spawn_moving_platform = random_generator.randomFloatRange(0, 1) < MOVING_PLATFORM_SPAWN_CHANCE;
 
-        float moving_spawn_chance = random_generator.randomFloatRange(0, 1);
+        if (spawn_moving_platform) {
 
-        if (moving_spawn_chance < MOVING_PLATFORM_SPAWN_CHANCE) {
             generateMovingPlatform(x, y);
         } else {
-            generateNormalPlatform(x, y);
+            bool spawn_spring = random_generator.randomFloatRange(0, 1) <= SPRINTG_SPAWN_CHANCE;
+            generateNormalPlatform(x, y, spawn_spring);
 
-            float broken_spawn_chance = random_generator.randomFloatRange(0, 1);
+            bool spawn_borken_platform = random_generator.randomFloatRange(0, 1) < BROKEN_PLATFORM_SPAWN_CHANCE;
 
-            if (broken_spawn_chance < BROKEN_PLATFORM_SPAWN_CHANCE) {
+            if (spawn_borken_platform) {
                 const float max_attempts = 2;
 
                 for (int i = 0; i < max_attempts; i++) {
@@ -40,17 +42,13 @@ void Chunk::start() {
 
         }
 
-
-
-        
-
         y -= getRandomGap();
     }
 }
 
 void Chunk::update(float delta) {
-    checkPlatformCollisions();
-    removeOffScreenPlatforms();
+    handleCollisions();
+    removeOffScreenObjects();
     for (const auto& platform: platforms) {
         platform->update(delta);
     }
@@ -65,29 +63,41 @@ void Chunk::render(sf::RenderWindow& window) {
     }
     for (const auto& platform: broken_platforms) {
         platform->render(window);
-    }    
+    }
+    for (const auto& spring: springs) {
+        spring->render(window);
+    } 
 }
 
 inline float Chunk::getRandomGap() {
     return random_generator.randomFloatRange(GameConfig::MIN_OBJ_GAP, GameConfig::MAX_OBJ_GAP);
 }
 
-void Chunk::checkPlatformCollisions() {
+void Chunk::handleCollisions() {
     for (auto const& platform: platforms) {
-        if (player->isCollidingWithPlatform(platform.get())) {
+        if (player->isColliding(platform.get()->getBounds())) {
             player->handleJump();
         }
     }
 
     for (auto it = broken_platforms.begin(); it != broken_platforms.end(); ++it) {
-        if (player->isCollidingWithPlatform(it->get())) {
+        if (player->isColliding(it->get()->getBounds())) {
             broken_platforms.erase(it);
             break;
         }
     }
+
+    for (auto const& spring: springs) {
+        if (player->isColliding(spring.get()->getBounds())) {
+            player->handleSpringJump();
+            spring->setCompressed(true);
+        }
+    }
 }
 
-void Chunk::removeOffScreenPlatforms() {
+
+
+void Chunk::removeOffScreenObjects() {
     const float camera_bottom_y = camera->getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
     while (!platforms.empty() && platforms.back()->getPosition().y >= camera_bottom_y) {
         platforms.back().release();
@@ -98,11 +108,31 @@ void Chunk::removeOffScreenPlatforms() {
         broken_platforms.back().release();
         broken_platforms.pop_back();
     }
+
+    while (!springs.empty() && springs.back()->getPosition().y >= camera_bottom_y) {
+        springs.back().release();
+        springs.pop_back();
+    }
 }
 
-void Chunk::generateNormalPlatform(float x, float y) {
+void Chunk::generateNormalPlatform(float x, float y, bool spawn_spring) {
     std::unique_ptr new_platform = std::make_unique<NormalPlatform>(sf::Vector2f{x, y});
     new_platform->start();
+    
+    if (spawn_spring) {
+        sf::Vector2f spring_position;
+        
+        spring_position.y = new_platform->getPosition().y;
+
+        static const int MAX_SPRING_OFFSET = 15;
+        float offset_x = Random::getInstance().randomFloatRange(-MAX_SPRING_OFFSET, MAX_SPRING_OFFSET);
+        spring_position.x = new_platform->getPosition().x + offset_x;
+
+        std::unique_ptr new_spring = std::make_unique<Spring>(spring_position);
+        new_spring->start();
+        springs.push_front(std::move(new_spring));
+    }
+
     platforms.push_front(std::move(new_platform));
 }
 
@@ -135,3 +165,4 @@ void Chunk::generateMovingPlatform(float x, float y) {
     new_platform->start();
     platforms.push_front(std::move(new_platform));    
 }
+

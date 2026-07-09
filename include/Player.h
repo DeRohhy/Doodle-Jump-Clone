@@ -24,13 +24,15 @@ public:
     void render(sf::RenderWindow& window) override;
     void handleMovement(float delta);
     void handleJump();
-    bool isCollidingWithPlatform(Platform* platform);
+    void handleSpringJump();
+    bool isColliding(const sf::FloatRect& collider);
     void handleScreenWrapping();
     
 
 private:
     const std::string RIGHT_DOODLE_PATH = "assets/right_doodle.png";
     static constexpr float JUMP_FACTOR = 800.f;
+    static constexpr float SPRING_JUMP_FACTOR = 1500.f;
     static constexpr float TOP_SPEED = 700.f;
     static constexpr float VELOCITY_POWER = 0.99f;
     static constexpr float ACCEL_RATE = 7.f;

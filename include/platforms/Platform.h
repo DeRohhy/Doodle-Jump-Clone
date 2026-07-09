@@ -16,7 +16,7 @@ public:
     sf::FloatRect getBounds();
 
     void start() override;
-    void render(sf::RenderWindow& window) override;
+    virtual void render(sf::RenderWindow& window) override;
 protected:
     static constexpr float SPRITE_SCALE = 1.1f;
     std::string platform_path;

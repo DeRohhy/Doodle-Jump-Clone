@@ -67,10 +67,6 @@ void Player::handleSpringJump() {
 }
 
 bool Player::isColliding(const sf::FloatRect& collider) {
-    static constexpr float epsilon = 5.f;
-    if (velocity.y < 0 || position.y > collider.position.y + epsilon)
-        return false;
-
     // findIntersection returns std::optional<sf::FloatRect>
     return static_cast<bool>(getBounds().findIntersection(collider));
 }

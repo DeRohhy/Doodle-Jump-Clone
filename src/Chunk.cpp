@@ -9,38 +9,10 @@
 void Chunk::start() {
     const float top_y = position.y;
     const float bottom_y = position.y + static_cast<float>(GameConfig::CHUNK_HEIGHT);
-    static const float side_margin = 50.f;
 
     float y = bottom_y - getRandomGap();
     while (y >= top_y) {
-        float x = random_generator.randomFloatRange(side_margin, GameConfig::SCREEN_WIDTH - side_margin);
-
-        static const float BROKEN_PLATFORM_SPAWN_CHANCE = 0.1;
-        static const float MOVING_PLATFORM_SPAWN_CHANCE = 0.1;
-        static const float SPRINTG_SPAWN_CHANCE = 0.1;
- 
-        bool spawn_moving_platform = random_generator.randomFloatRange(0, 1) < MOVING_PLATFORM_SPAWN_CHANCE;
-
-        if (spawn_moving_platform) {
-
-            generateMovingPlatform(x, y);
-        } else {
-            bool spawn_spring = random_generator.randomFloatRange(0, 1) <= SPRINTG_SPAWN_CHANCE;
-            generateNormalPlatform(x, y, spawn_spring);
-
-            bool spawn_borken_platform = random_generator.randomFloatRange(0, 1) < BROKEN_PLATFORM_SPAWN_CHANCE;
-
-            if (spawn_borken_platform) {
-                const float max_attempts = 2;
-
-                for (int i = 0; i < max_attempts; i++) {
-                    float broken_platform_x = random_generator.randomFloatRange(side_margin, GameConfig::SCREEN_WIDTH - side_margin);
-
-                    generateBrokenPlatform(broken_platform_x, y);              
-                }
-            }
-
-        }
+        spawnRow(y);
 
         y -= getRandomGap();
     }
@@ -69,26 +41,52 @@ void Chunk::render(sf::RenderWindow& window) {
     } 
 }
 
-inline float Chunk::getRandomGap() {
+void Chunk::spawnRow(float y) {
+    const float x = random_generator.randomFloatRange(SIDE_MARGIN, GameConfig::SCREEN_WIDTH - SIDE_MARGIN);
+
+    const bool spawn_moving_platform = random_generator.randomFloatRange(0, 1) < MOVING_PLATFORM_SPAWN_CHANCE;
+    if (spawn_moving_platform) {
+        generateMovingPlatform(x, y);
+        return;
+    }
+
+    const bool spawn_spring = random_generator.randomFloatRange(0, 1) < SPRING_SPAWN_CHANCE;
+    generateNormalPlatform(x, y, spawn_spring);
+
+
+    const bool spawn_broken_platform = random_generator.randomFloatRange(0, 1) < BROKEN_PLATFORM_SPAWN_CHANCE;
+    if (spawn_broken_platform) {
+        tryGenerateBrokenPlatform(y);
+    }
+}
+
+void Chunk::tryGenerateBrokenPlatform(float y) {
+    for (int i = 0; i < MAX_BROKEN_PLATFORM_ATTEMPTS; i++) {
+        const float x = random_generator.randomFloatRange(SIDE_MARGIN, GameConfig::SCREEN_WIDTH - SIDE_MARGIN);
+        generateBrokenPlatform(x, y);
+    }
+}
+
+float Chunk::getRandomGap() {
     return random_generator.randomFloatRange(GameConfig::MIN_OBJ_GAP, GameConfig::MAX_OBJ_GAP);
 }
 
 void Chunk::handleCollisions() {
     for (auto const& platform: platforms) {
-        if (player->isColliding(platform.get()->getBounds())) {
+        if (player->isColliding(platform->getBounds()) && player->getVelocity().y > 0)  {
             player->handleJump();
         }
     }
 
     for (auto it = broken_platforms.begin(); it != broken_platforms.end(); ++it) {
-        if (player->isColliding(it->get()->getBounds())) {
+        if (player->isColliding(it->get()->getBounds()) && player->getVelocity().y > 0) {
             broken_platforms.erase(it);
             break;
         }
     }
 
     for (auto const& spring: springs) {
-        if (player->isColliding(spring.get()->getBounds())) {
+        if (player->isColliding(spring->getBounds()) && player->getVelocity().y > 0) {
             player->handleSpringJump();
             spring->setCompressed(true);
         }
@@ -121,7 +119,7 @@ void Chunk::generateNormalPlatform(float x, float y, bool spawn_spring) {
         
         spring_position.y = new_platform->getPosition().y;
 
-        static const int MAX_SPRING_OFFSET = 15;
+        static constexpr int MAX_SPRING_OFFSET = 15;
         float offset_x = Random::getInstance().randomFloatRange(-MAX_SPRING_OFFSET, MAX_SPRING_OFFSET);
         spring_position.x = new_platform->getPosition().x + offset_x;
 
@@ -155,9 +153,7 @@ void Chunk::generateBrokenPlatform(float x, float y) {
 
 
 void Chunk::generateMovingPlatform(float x, float y) {
-    static const float MIN_SPEED = 100;
-    static const float MAX_SPEED = 250;
-    const float speed = random_generator.randomFloatRange(MIN_SPEED, MAX_SPEED);
+    const float speed = random_generator.randomFloatRange(GameConfig::MIN_PLATFORM_MOVE_SPEED, GameConfig::MAX_PLATFORM_MOVE_SPEED);
     std::unique_ptr new_platform = std::make_unique<MovingPlatform>(sf::Vector2f{x, y}, speed);
     new_platform->start();
     platforms.push_front(std::move(new_platform));    

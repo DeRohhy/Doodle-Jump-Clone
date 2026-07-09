@@ -127,7 +127,6 @@ void Game::handleChunkDeletion() {
     const float camera_bottom_y = camera.getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
 
     while (!chunks.empty() && chunks.back()->getPosition().y >= camera_bottom_y) {
-        chunks.back().release();
         chunks.pop_back();
     }
 }

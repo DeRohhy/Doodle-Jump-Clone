@@ -100,17 +100,14 @@ void Chunk::handleCollisions() {
 void Chunk::removeOffScreenObjects() {
     const float camera_bottom_y = camera->getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
     while (!platforms.empty() && platforms.back()->getPosition().y >= camera_bottom_y) {
-        platforms.back().release();
         platforms.pop_back();
     }
 
     while (!broken_platforms.empty() && broken_platforms.back()->getPosition().y >= camera_bottom_y) {
-        broken_platforms.back().release();
         broken_platforms.pop_back();
     }
 
     while (!springs.empty() && springs.back()->getPosition().y >= camera_bottom_y) {
-        springs.back().release();
         springs.pop_back();
     }
 }

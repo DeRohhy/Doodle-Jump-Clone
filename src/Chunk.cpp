@@ -93,8 +93,6 @@ void Chunk::handleCollisions() {
     }
 }
 
-
-
 void Chunk::removeOffScreenObjects() {
     const float camera_bottom_y = camera->getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
     while (!platforms.empty() && platforms.back()->getPosition().y >= camera_bottom_y) {
@@ -119,7 +117,6 @@ void Chunk::generateNormalPlatform(float x, float y, bool spawn_spring) {
         
         spring_position.y = new_platform->getPosition().y;
 
-        static constexpr int MAX_SPRING_OFFSET = 15;
         float offset_x = Random::getInstance().randomFloatRange(-MAX_SPRING_OFFSET, MAX_SPRING_OFFSET);
         spring_position.x = new_platform->getPosition().x + offset_x;
 

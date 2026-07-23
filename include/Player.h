@@ -31,6 +31,7 @@ public:
 
 private:
     const std::string RIGHT_DOODLE_PATH = "assets/right_doodle.png";
+    const std::string LEFT_DOODLE_PATH = "assets/left_doodle.png";
     static constexpr float JUMP_FACTOR = 800.f;
     static constexpr float SPRING_JUMP_FACTOR = 1500.f;
     static constexpr float TOP_SPEED = 700.f;
@@ -39,9 +40,7 @@ private:
     static constexpr float SPRITE_SCALE = 0.75f;
 
     sf::Texture right_doodle_texture;
-    // SFML 3 removed sf::Sprite’s default constructor
-    // so we'll get an error if we say:
-    // sf::Sprite player_sprite;
+    sf::Texture left_doodle_texture;
     std::optional<sf::Sprite> player_sprite; 
 
     Direction facing_direction = Direction::RIGHT;

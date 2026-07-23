@@ -15,6 +15,7 @@ sf::FloatRect Player::getBounds() {
 
 void Player::start() {
     right_doodle_texture = ResourceManager<sf::Texture>::getInstance().get(RIGHT_DOODLE_PATH);
+    left_doodle_texture = ResourceManager<sf::Texture>::getInstance().get(LEFT_DOODLE_PATH);
 
     player_sprite.emplace(right_doodle_texture); // construct in-place with texture
 
@@ -22,9 +23,7 @@ void Player::start() {
     // the bottom of the feet is at local y = 0
     // and the center between player legs is at local x = 0
     sf::Vector2f local_bound = player_sprite->getLocalBounds().size;
-    static constexpr float offset_percentage = 3.f / 8.f;
-    player_sprite->setOrigin({offset_percentage * local_bound.x, local_bound.y});
-
+    player_sprite->setOrigin({local_bound.x / 2, local_bound.y});
     player_sprite->setScale({SPRITE_SCALE, SPRITE_SCALE});
 }
 
@@ -35,8 +34,6 @@ void Player::update(float delta) {
     position += velocity * delta;
 
     if (player_sprite) player_sprite->setPosition(position);
-
-
 }
 
 void Player::render(sf::RenderWindow& window) {
@@ -80,16 +77,16 @@ void Player::setDirection(Direction new_direction) {
     if (!player_sprite) return;
 
     if (new_direction == Direction::LEFT) {
-        player_sprite->setScale({-SPRITE_SCALE, SPRITE_SCALE});
+        player_sprite->setTexture(left_doodle_texture);
     } else {
-        player_sprite->setScale({SPRITE_SCALE, SPRITE_SCALE});
+        player_sprite->setTexture(right_doodle_texture);
     }
 }
 
 void Player::handleScreenWrapping() {
-    static constexpr float left_margin = 10.f;
-    static constexpr float right_margin = 50.f;
-    sf::Vector2f center_of_feet_pos = position + player_sprite->getOrigin();
+    static constexpr float left_margin = 0.f;
+    static constexpr float right_margin = 0.f;
+    sf::Vector2f center_of_feet_pos = position;
 
     if (center_of_feet_pos.x < left_margin) {
         // position.x = GameConfig::SCREEN_WIDTH - player_sprite->getOrigin().x;

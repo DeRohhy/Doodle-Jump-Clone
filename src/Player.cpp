@@ -3,7 +3,9 @@
 #include "singletons/ResourceManager.h"
 #include "singletons/GameConfig.h"
 #include "platforms/BrokenPlatform.h"
-#include <math.h>
+#include <cmath>
+#include <numbers>
+#include <iostream>
 
 sf::FloatRect Player::getBounds() {
     if (!player_sprite) {
@@ -16,43 +18,103 @@ sf::FloatRect Player::getBounds() {
 void Player::start() {
     right_doodle_texture = ResourceManager<sf::Texture>::getInstance().get(RIGHT_DOODLE_PATH);
     left_doodle_texture = ResourceManager<sf::Texture>::getInstance().get(LEFT_DOODLE_PATH);
+    shooting_pose_texture = ResourceManager<sf::Texture>::getInstance().get(SHOOTING_POSE_PATH);
+    nose_texture = ResourceManager<sf::Texture>::getInstance().get(NOSE_PATH);
 
     player_sprite.emplace(right_doodle_texture); // construct in-place with texture
+    nose_sprite.emplace(nose_texture);
 
     // offset player sprite so that
     // the bottom of the feet is at local y = 0
     // and the center between player legs is at local x = 0
-    sf::Vector2f local_bound = player_sprite->getLocalBounds().size;
-    player_sprite->setOrigin({local_bound.x / 2, local_bound.y});
+    sf::Vector2f player_local_bounds = player_sprite->getLocalBounds().size;
+    player_sprite->setOrigin({player_local_bounds.x / 2, player_local_bounds.y});
     player_sprite->setScale({SPRITE_SCALE, SPRITE_SCALE});
+
+    sf::Vector2f nose_local_bounds = nose_sprite->getLocalBounds().size;
+    nose_sprite->setOrigin({nose_local_bounds.x / 2, nose_local_bounds.y / 2});
+    nose_sprite->setScale({SPRITE_SCALE, SPRITE_SCALE});
+
+    fire_rate_timer = fire_rate;
 }
 
 void Player::update(float delta) {
     handleScreenWrapping();
     handleMovement(delta);
+    handleShooting();
     velocity.y += GameConfig::GRAVITY * delta;
     position += velocity * delta;
 
     if (player_sprite) player_sprite->setPosition(position);
+    if (nose_sprite) {
+        nose_sprite->setPosition({
+            position.x,
+            position.y - getBounds().size.y / 2
+        });
+    }
+
+    fire_rate_timer -= delta;
+    if (fire_rate_timer <= 0) {
+        fire_rate_timer = 0;
+        is_shooting = false;
+    }
 }
 
 void Player::render(sf::RenderWindow& window) {
+    // update mouse position relative e to the window/view
+    mouse_position = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+
     if (player_sprite) window.draw(*player_sprite);
+    if (is_shooting && nose_sprite) window.draw(*nose_sprite);
+
 }
 
 void Player::handleMovement(float delta) {
+    static int last_valid_direction = 1;
     int direction = 0;
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)) direction = -1;
     else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)) direction = 1;
 
     if (direction != 0)
-        setDirection(direction == -1 ? Direction::LEFT : Direction::RIGHT);
+        last_valid_direction = direction;
+    
+    if (!is_shooting) {
+        setPlayerState(last_valid_direction == -1 ? PLAYER_STATE::LEFT : PLAYER_STATE::RIGHT);
+    }
 
     float target_speed = static_cast<float>(direction) * TOP_SPEED;
     float speed_difference = target_speed - velocity.x;
     float delta_velocity = std::pow(std::abs(speed_difference) * ACCEL_RATE, VELOCITY_POWER) * (speed_difference > 0 ? 1 : -1);
 
     velocity.x += delta_velocity * delta;
+}
+
+void Player::handleShooting() {
+    if (!is_shooting && sf::Mouse::isButtonPressed(sf::Mouse::Button::Left)) {
+        // reset fire rate timer
+        fire_rate_timer = fire_rate;
+        is_shooting = true;
+
+
+
+        float half_width = GameConfig::SCREEN_WIDTH / 2;
+        float relative_distance = mouse_position.x - half_width;
+
+
+        if (relative_distance < -half_width)
+            relative_distance = -half_width;
+        else if (relative_distance > half_width)
+            relative_distance = half_width;
+
+        static constexpr float MAX_NOSE_ANGLE_DEG = 30.f;
+        float nose_angle_degree = MAX_NOSE_ANGLE_DEG * (relative_distance / half_width);
+
+        if (nose_sprite) {
+            nose_sprite->setRotation(sf::degrees(nose_angle_degree ));
+        }
+
+        setPlayerState(PLAYER_STATE::SHOOTING);
+    }
 }
 
 void Player::handleJump() {
@@ -69,17 +131,19 @@ bool Player::isColliding(const sf::FloatRect& collider) {
 }
 
 
-void Player::setDirection(Direction new_direction) {
-    if (facing_direction == new_direction) return; 
+void Player::setPlayerState(PLAYER_STATE new_state) {
+    if (player_state == new_state) return; 
         
-    facing_direction = new_direction;
+    player_state = new_state;
 
     if (!player_sprite) return;
 
-    if (new_direction == Direction::LEFT) {
+    if (new_state == PLAYER_STATE::LEFT) {
         player_sprite->setTexture(left_doodle_texture);
-    } else {
+    } else if (new_state == PLAYER_STATE::RIGHT) {
         player_sprite->setTexture(right_doodle_texture);
+    } else if (new_state == PLAYER_STATE::SHOOTING) {
+        player_sprite->setTexture(shooting_pose_texture);
     }
 }
 

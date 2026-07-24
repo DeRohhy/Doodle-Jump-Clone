@@ -23,6 +23,7 @@ public:
     static constexpr float MAX_PLATFORM_MOVE_SPEED = 250;
 
     static constexpr int TITLE_FONT_SIZE = 48;
+    
     static constexpr int NORMAL_FONT_SIZE = 24;
     
     static constexpr sf::Color MAIN_COLOR = sf::Color(23, 54, 93);

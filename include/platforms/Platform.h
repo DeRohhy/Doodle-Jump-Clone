@@ -18,7 +18,7 @@ public:
     void start() override;
     virtual void render(sf::RenderWindow& window) override;
 protected:
-    static constexpr float SPRITE_SCALE = 1.1f;
+    static constexpr float SPRITE_SCALE =0.75f;
     std::string platform_path;
 
     sf::Texture platform_texture;

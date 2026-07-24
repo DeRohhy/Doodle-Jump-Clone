@@ -7,15 +7,16 @@
 #include <string>
 #include <optional>
 
-enum Direction {
+enum PLAYER_STATE {
     RIGHT,
-    LEFT
+    LEFT,
+    SHOOTING,
 };
 
 class Player : public GameObject {
 public:
-    Player(sf::Vector2f _position, sf::Vector2f _velocity)
-        : GameObject(_position, _velocity) {}
+    Player(sf::Vector2f _position, sf::Vector2f _velocity,  float _fire_rate)
+        : GameObject(_position, _velocity), fire_rate(_fire_rate) {}
 
     sf::FloatRect getBounds();
 
@@ -25,6 +26,7 @@ public:
     void handleMovement(float delta);
     void handleJump();
     void handleSpringJump();
+    void handleShooting();
     bool isColliding(const sf::FloatRect& collider);
     void handleScreenWrapping();
     
@@ -32,6 +34,9 @@ public:
 private:
     const std::string RIGHT_DOODLE_PATH = "assets/right_doodle.png";
     const std::string LEFT_DOODLE_PATH = "assets/left_doodle.png";
+    const std::string SHOOTING_POSE_PATH = "assets/shooting_pose.png";
+    const std::string NOSE_PATH = "assets/nose.png";
+
     static constexpr float JUMP_FACTOR = 800.f;
     static constexpr float SPRING_JUMP_FACTOR = 1500.f;
     static constexpr float TOP_SPEED = 700.f;
@@ -41,9 +46,16 @@ private:
 
     sf::Texture right_doodle_texture;
     sf::Texture left_doodle_texture;
-    std::optional<sf::Sprite> player_sprite; 
+    sf::Texture shooting_pose_texture;
+    sf::Texture nose_texture;
+    std::optional<sf::Sprite> player_sprite, nose_sprite; 
 
-    Direction facing_direction = Direction::RIGHT;
+    PLAYER_STATE player_state = PLAYER_STATE::RIGHT;
 
-    void setDirection(Direction new_direction);
+    // bool fire_rate_timer_timeout = true;
+    float fire_rate, fire_rate_timer = 0;
+    bool is_shooting = false;
+    sf::Vector2f mouse_position;
+
+    void setPlayerState(PLAYER_STATE new_state);
 };

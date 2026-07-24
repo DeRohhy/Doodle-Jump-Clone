@@ -18,7 +18,7 @@ endif
 # Compiler & Flags
 # ==========================================
 CXX      := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Iinclude $(SFML_INC) -MMD -MP
+CXXFLAGS := -std=c++20 -Wall -Wextra -Iinclude $(SFML_INC) -MMD -MP
 LDFLAGS  := $(SFML_LIB) -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lsfml-network
 
 # ==========================================

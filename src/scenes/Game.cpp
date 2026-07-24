@@ -19,7 +19,8 @@ Game::Game(SceneManager& _manager) : Scene(_manager) {
     
     player = std::make_unique<Player>(
         sf::Vector2f{GameConfig::SCREEN_WIDTH / 2, BOTTOM_Y},
-        sf::Vector2f()
+        sf::Vector2f(),
+        0.3
     );
 
     font = ResourceManager<sf::Font>::getInstance().get(FONT_PATH);

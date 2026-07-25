@@ -26,4 +26,6 @@ void App::run() {
         // safely change to pending scene after the frame
         manager.applyPendingScene();
     }
+
+    GameSettings::getInstance().save();
 }

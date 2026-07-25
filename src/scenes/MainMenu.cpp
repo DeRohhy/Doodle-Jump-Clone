@@ -59,7 +59,8 @@ void MainMenu::handleEvents(sf::RenderWindow& window) {
     while (const std::optional event = window.pollEvent()) {
         if (event->is<sf::Event::Closed>()) {
             window.close();
-        } else if (const auto* mouse_pressed = event->getIf<sf::Event::MouseButtonPressed>())
+        } 
+        if (const auto* mouse_pressed = event->getIf<sf::Event::MouseButtonPressed>())
         {
             if (mouse_pressed->button ==  sf::Mouse::Button::Left) {
                 sf::Vector2i mouse_position = mouse_pressed->position;

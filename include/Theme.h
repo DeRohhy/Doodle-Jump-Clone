@@ -9,6 +9,7 @@ namespace Theme {
 
     // Colors(Text):
     inline const sf::Color TEXT_PRIMARY = sf::Color(23, 54, 93);
+    inline const sf::Color TEXT_SECONDARY = sf::Color(191, 188, 186);
 
     // Scales(Sprite):
     inline constexpr float SCALE_SMALL = 0.35f;

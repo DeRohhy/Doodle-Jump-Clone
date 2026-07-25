@@ -15,4 +15,14 @@ public:
     virtual void render(sf::RenderWindow& window) = 0;
 protected:
     SceneManager& manager;
+
+    void makeText(std::optional<sf::Text>& slot,
+                  const std::string& str,
+                  const sf::Font& font,
+                  int font_size,
+                  sf::Color color,
+                  sf::Text::Style style);
+
+    void makeButton(std::optional<sf::Sprite>& slot, const sf::Texture& texture,
+                    float sprite_scale);
 };

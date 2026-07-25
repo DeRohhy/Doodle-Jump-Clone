@@ -1,10 +1,15 @@
 #include "scenes/MainMenu.h"
 
 #include "singletons/ResourceManager.h"
-#include "singletons/GameConfig.h"
 #include "singletons/GameSettings.h"
+
 #include "scenes/Game.h"
 #include "scenes/SceneManager.h"
+#include "scenes/SettingsMenu.h"
+
+#include "Theme.h"
+#include "GameConstants.h"
+
 #include <memory>
 
 
@@ -13,42 +18,41 @@ MainMenu::MainMenu(SceneManager& _manager) : Scene(_manager) {
     background_sprite.emplace(background_texture);
 
     font = ResourceManager<sf::Font>::getInstance().get(FONT_PATH);
-    button_texture = ResourceManager<sf::Texture>::getInstance().get(BUTTON_PATH);
-    start_button.emplace(button_texture);
-    start_button->setScale({SPRITE_SCALE, SPRITE_SCALE});
+    start_button_texture = ResourceManager<sf::Texture>::getInstance().get(START_BUTTON_PATH);
+    settings_button_texture = ResourceManager<sf::Texture>::getInstance().get(SETTINGS_BUTTON_PATH);
 }
 
 void MainMenu::start() {
-    title.emplace(font);
-    title->setString("Doodle Jump");
-    title->setCharacterSize(GameConfig::TITLE_FONT_SIZE);
-    title->setFillColor(GameConfig::MAIN_COLOR);
-    title->setStyle(sf::Text::Bold);
-    const int title_x = GameConfig::SCREEN_WIDTH / 2, title_y = 120.f;
-    positionText(title.value(), title_x, title_y);
+    const sf::Vector2f title_position = {GameConstants::SCREEN_WIDTH / 2, 120.f};
+    makeText(title, "Doodle Jump", font, Theme::FONT_TITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Bold);
+    title->setPosition(title_position);
+
+    const sf::Vector2f high_score_position = {GameConstants::SCREEN_WIDTH / 2, 200.f};
+    const std::string high_score_text = "High Score: " + std::to_string(GameSettings::getInstance().getHighScore());
+    makeText(high_score, high_score_text, font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Bold);
+    high_score->setPosition(high_score_position);
+
+    const sf::Vector2f start_button_position = {GameConstants::SCREEN_WIDTH / 2, 300.f};
+    makeButton(start_button, start_button_texture, Theme::SCALE_MEDIUM);
+    start_button->setPosition(start_button_position);
+
+    const sf::Vector2f settings_button_position = {GameConstants::SCREEN_WIDTH / 2, 400.f};
+    makeButton(settings_button, settings_button_texture, Theme::SCALE_SMALL);
+    settings_button->setPosition(settings_button_position);
+
+    const sf::Vector2f mode_position = {GameConstants::SCREEN_WIDTH / 2, 500.f};
+    makeText(mode, "Doodle Jump", font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Regular);
+    mode->setPosition(mode_position);
 
 
-    high_score.emplace(font);
-    high_score->setString("High Score: " + std::to_string(GameSettings::getInstance().getHighScore()));
-    high_score->setCharacterSize(GameConfig::NORMAL_FONT_SIZE);
-    high_score->setFillColor(GameConfig::MAIN_COLOR);
-    high_score->setStyle(sf::Text::Bold);
-    const int high_score_x = GameConfig::SCREEN_WIDTH / 2, high_score_y = 300.f;
-    positionText(high_score.value(), high_score_x, high_score_y);
+    const sf::Vector2f tutorial_move_position = {GameConstants::SCREEN_WIDTH / 2, 550.f};
+    makeText(tutorial_move, "Use A / D Keys To Move", font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Regular);
+    tutorial_move->setPosition(tutorial_move_position);
 
 
-    const sf::Vector2f button_bound = start_button->getLocalBounds().size;
-    start_button->setOrigin({button_bound.x / 2.f, button_bound.y / 2.f});
-    start_button->setPosition({GameConfig::SCREEN_WIDTH / 2, GameConfig::SCREEN_HEIGHT / 2});
-
-
-    tutorial.emplace(font);
-    tutorial->setString("Use A / D keys to move");
-    tutorial->setCharacterSize(GameConfig::NORMAL_FONT_SIZE);
-    tutorial->setFillColor(GameConfig::MAIN_COLOR);
-    const int tutorial_x = GameConfig::SCREEN_WIDTH / 2, tutorial_y = GameConfig::SCREEN_HEIGHT - 300;
-    positionText(tutorial.value(), tutorial_x, tutorial_y);
-
+    const sf::Vector2f tutorial_shoot_position = {GameConstants::SCREEN_WIDTH / 2, 600.f};
+    makeText(tutorial_shoot, "Press LMB To Shoot", font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Regular);
+    tutorial_shoot->setPosition(tutorial_shoot_position);
 }
 
 void MainMenu::handleEvents(sf::RenderWindow& window) {
@@ -62,9 +66,11 @@ void MainMenu::handleEvents(sf::RenderWindow& window) {
                 
                 if (start_button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_position))) {
                     manager.changeScene(std::make_unique<Game>(manager));
+                } else if (settings_button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_position))) {
+                    manager.changeScene(std::make_unique<SettingsMenu>(manager));
                 }
             }
-        }
+        } 
     }
 }
 
@@ -76,11 +82,8 @@ void MainMenu::render(sf::RenderWindow& window) {
     window.draw(title.value());
     window.draw(high_score.value());
     window.draw(start_button.value());
-    window.draw(tutorial.value());
-}
-
-void MainMenu::positionText(sf::Text& text, float x, float y) {
-    sf::Vector2f local_bound = text.getLocalBounds().size;
-    text.setOrigin({local_bound.x / 2, local_bound.y / 2});
-    text.setPosition({x, y});
+    window.draw(settings_button.value());
+    window.draw(mode.value());
+    window.draw(tutorial_move.value());
+    window.draw(tutorial_shoot.value());
 }

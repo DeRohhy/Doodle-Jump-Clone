@@ -16,8 +16,8 @@ public:
 private:
     const std::string BACKGROUND_PATH = "assets/background.png";
     const std::string FONT_PATH = "assets/ariblk.ttf";
-    const std::string BUTTON_PATH = "assets/start_button.png";
-    static constexpr float SPRITE_SCALE = 0.7f;
+    const std::string START_BUTTON_PATH = "assets/start_button.png";
+    const std::string SETTINGS_BUTTON_PATH = "assets/settings_button.png";
 
     sf::Texture background_texture;
     std::optional<sf::Sprite> background_sprite; 
@@ -25,10 +25,15 @@ private:
     sf::Font font;
     std::optional<sf::Text> title;
     std::optional<sf::Text> high_score;
-    std::optional<sf::Text> tutorial;
+    std::optional<sf::Text> mode;
+    std::optional<sf::Text> tutorial_move;
+    std::optional<sf::Text> tutorial_shoot;
 
-    sf::Texture button_texture;
+    sf::Texture start_button_texture;
     std::optional<sf::Sprite> start_button;
 
-    void positionText(sf::Text& text, float x, float y);
+    sf::Texture settings_button_texture;
+    std::optional<sf::Sprite> settings_button;
+
+
 };

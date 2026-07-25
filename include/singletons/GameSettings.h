@@ -36,6 +36,15 @@ public:
     Difficulty getDifficulty() const { return difficulty; }
     void setDifficulty(Difficulty new_difficulty) { difficulty = new_difficulty; }
 
+    void save() const {
+        std::ofstream out(SETTINGS_PATH, std::ios::trunc);
+        out << high_scores[0] << '\n'
+            << high_scores[1] << '\n'
+            << high_scores[2] << '\n'
+            << last_score << '\n'
+            << volume << '\n'
+            << static_cast<int>(difficulty);
+    }
 private:
     const std::string SETTINGS_PATH = "settings.txt";
     
@@ -64,15 +73,7 @@ private:
         }
     }
 
-    void save() const {
-        std::ofstream out(SETTINGS_PATH, std::ios::trunc);
-        out << high_scores[0] << '\n'
-            << high_scores[1] << '\n'
-            << high_scores[2] << '\n'
-            << last_score << '\n'
-            << volume << '\n'
-            << static_cast<int>(difficulty);
-    }
+
 
     void setDefaults() {
         high_scores[0] = 0;

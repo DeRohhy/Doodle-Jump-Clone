@@ -4,14 +4,22 @@
 #include <fstream>
 #include <string>
 
+enum class Difficulty {
+    EASY = 0,
+    MEDIUM = 1,
+    HARD = 2
+};
+
+
 class GameSettings : public Singleton<GameSettings> {
 friend class Singleton<GameSettings>;
 
 public:
-    int getHighScore() const { return high_score; }
+    int getHighScore() const { return high_scores[static_cast<int>(difficulty)]; }
     void setHighScore(int new_score) {
-        if (new_score > high_score) {
-            high_score = new_score;
+        int diff_index = static_cast<int>(difficulty);
+        if (new_score > high_scores[diff_index]) {
+            high_scores[diff_index] = new_score;
         }
         save();
     }
@@ -22,11 +30,19 @@ public:
         save();
     }
 
+    float getVolume() const { return volume; }
+    void setVolume(float new_volume) { volume = new_volume; }
+
+    Difficulty getDifficulty() const { return difficulty; }
+    void setDifficulty(Difficulty new_difficulty) { difficulty = new_difficulty; }
+
 private:
     const std::string SETTINGS_PATH = "settings.txt";
     
-    int high_score = 0;
+    int high_scores[3] = {0, 0, 0};
     int last_score = 0;
+    float volume = 1.f;
+    Difficulty difficulty = Difficulty::EASY;
 
     GameSettings() { load(); }
 
@@ -37,7 +53,11 @@ private:
             return;
         }
         
-        in >> high_score >> last_score;
+        int diff_index;
+        in >> high_scores[0] >> high_scores[1] >> high_scores[2]
+           >> last_score >> volume >> diff_index;
+
+        difficulty = static_cast<Difficulty>(diff_index);
         
         if (in.fail()) {
             setDefaults();
@@ -46,12 +66,22 @@ private:
 
     void save() const {
         std::ofstream out(SETTINGS_PATH, std::ios::trunc);
-        out << high_score << '\n'
-            << last_score;
+        out << high_scores[0] << '\n'
+            << high_scores[1] << '\n'
+            << high_scores[2] << '\n'
+            << last_score << '\n'
+            << volume << '\n'
+            << static_cast<int>(difficulty);
     }
 
     void setDefaults() {
-        high_score = 0;
+        high_scores[0] = 0;
+        high_scores[1] = 0;
+        high_scores[2] = 0;
+        last_score = 0;
+        volume = 1.f;
+        difficulty = Difficulty::MEDIUM;
+
     }
 
 };

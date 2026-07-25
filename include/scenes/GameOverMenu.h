@@ -18,7 +18,6 @@ private:
     const std::string FONT_PATH = "assets/ariblk.ttf";
     const std::string RESTART_BUTTON_PATH = "assets/restart_button.png";
     const std::string MENU_BUTTON_PATH = "assets/menu_button.png";
-    static constexpr float SPRITE_SCALE = 0.7f;
 
     sf::Texture background_texture;
     std::optional<sf::Sprite> background_sprite; 
@@ -32,6 +31,4 @@ private:
     sf::Texture menu_button_texture;
     std::optional<sf::Sprite> restart_button;
     std::optional<sf::Sprite> menu_button;
-
-    void positionText(sf::Text& text, float x, float y);
 };

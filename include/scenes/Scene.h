@@ -25,4 +25,6 @@ protected:
 
     void makeButton(std::optional<sf::Sprite>& slot, const sf::Texture& texture,
                     float sprite_scale);
+
+    void makeLine(sf::RectangleShape& slot, sf::Vector2f from, sf::Vector2f to, sf::Color color, float thickness);
 };

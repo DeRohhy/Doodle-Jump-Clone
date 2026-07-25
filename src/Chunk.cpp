@@ -72,23 +72,25 @@ float Chunk::getRandomGap() {
 }
 
 void Chunk::handleCollisions() {
+    const float player_feet_y = player->getPosition().y;
+
     for (auto const& platform: platforms) {
-        if (player->isColliding(platform->getBounds()) && player->getVelocity().y > 0)  {
+        if (player_feet_y - 10 < platform->getPosition().y && player->isColliding(platform->getBounds()) && player->getVelocity().y > 0)  {
             player->handleJump();
         }
     }
 
     for (auto it = broken_platforms.begin(); it != broken_platforms.end(); ++it) {
-        if (player->isColliding(it->get()->getBounds()) && player->getVelocity().y > 0) {
+        if (player_feet_y - 10 < (*it)->getPosition().y && player->isColliding(it->get()->getBounds()) && player->getVelocity().y > 0) {
             broken_platforms.erase(it);
             break;
         }
     }
 
     for (auto const& spring: springs) {
-        if (player->isColliding(spring->getBounds()) && player->getVelocity().y > 0) {
+        if (player->isColliding(spring->getBounds()) && player->getVelocity().y > 0 && spring->isCompressed()) {
             player->handleSpringJump();
-            spring->setCompressed(true);
+            spring->setCompressed(false);
         }
     }
 }

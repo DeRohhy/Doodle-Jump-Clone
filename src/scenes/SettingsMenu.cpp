@@ -32,6 +32,10 @@ void SettingsMenu::start() {
     const sf::Vector2f volume_slider_end = {volume_slider_position.x + VOLUME_SLIDER_LEN / 2, volume_slider_start.y};
     makeLine(volume_background, volume_slider_start, volume_slider_end, Theme::TEXT_SECONDARY, VOLUME_SLIDER_THICKNESS);
 
+    const sf::Vector2f volume_percentage_position = {volume_slider_position.x, volume_slider_position.y + 30};
+    makeText(volume_percentage, "", font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Bold);
+    volume_percentage->setPosition(volume_percentage_position);
+
     updateVolumeBar();
 
     const sf::Vector2f difficulty_position = {GameConstants::SCREEN_WIDTH / 2, volume_slider_position.y + 100.f};
@@ -102,11 +106,16 @@ void SettingsMenu::handleEvents(sf::RenderWindow& window) {
 void SettingsMenu::render(sf::RenderWindow& window) {
     window.setView(window.getDefaultView());
     window.clear();
+    
     window.draw(background_sprite.value());
+    
     window.draw(title.value());
+
     window.draw(volume.value());
     window.draw(volume_background);
     window.draw(volume_bar);
+    window.draw(volume_percentage.value());
+
     window.draw(difficulty.value());
 
     window.draw(easy.value());
@@ -122,9 +131,9 @@ void SettingsMenu::render(sf::RenderWindow& window) {
 
 void SettingsMenu::handleVolumeSliderInteraction(sf::Vector2f mouse_position) {
     const sf::Vector2f slider = volume_background.getGlobalBounds().position;
-
-    if (mouse_position.y >= slider.y - VOLUME_SLIDER_THICKNESS && mouse_position.y <= slider.y + VOLUME_SLIDER_THICKNESS &&
-        mouse_position.x >= slider.x && mouse_position.x <= slider.x + VOLUME_SLIDER_LEN) 
+    static constexpr float TOLERANCE = 7.f;
+    if (mouse_position.y >= slider.y - (VOLUME_SLIDER_THICKNESS + TOLERANCE) && mouse_position.y <= slider.y + (VOLUME_SLIDER_THICKNESS + TOLERANCE) &&
+        mouse_position.x >= slider.x - TOLERANCE && mouse_position.x <= slider.x + (VOLUME_SLIDER_LEN + TOLERANCE)) 
     {
         float new_volume = (mouse_position.x - slider.x) / VOLUME_SLIDER_LEN;
         new_volume = std::clamp(new_volume, 0.f, 1.f);
@@ -146,6 +155,10 @@ void SettingsMenu::updateVolumeBar() {
     const sf::Vector2f knob_pos = {bar_start.x + (volume * VOLUME_SLIDER_LEN), bar_start.y};
 
     makeLine(volume_bar, bar_start, knob_pos, Theme::TEXT_PRIMARY, VOLUME_SLIDER_THICKNESS);
+
+    volume_percentage->setString(std::to_string(static_cast<int>(volume * 100)) + "%");
+    sf::Vector2f percentage_bounds = volume_percentage->getLocalBounds().size;
+    volume_percentage->setOrigin({percentage_bounds.x / 2, percentage_bounds.y / 2});
 }
 
 void SettingsMenu::handleDifficultyInteraction(sf::Vector2f mouse_position) {

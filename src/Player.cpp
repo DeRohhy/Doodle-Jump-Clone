@@ -10,12 +10,36 @@
 #include <numbers>
 #include <iostream>
 
-sf::FloatRect Player::getBounds() {
+sf::FloatRect Player::getFeetBounds() {
     if (!player_sprite) {
         return sf::FloatRect();
     }
+    const sf::FloatRect global_bounds = player_sprite->getGlobalBounds();
 
-    return player_sprite->getGlobalBounds();
+    const sf::Vector2f feet_size = {global_bounds.size.x * FEET_WIDTH_RATIO,
+                                    global_bounds.size.y * FEET_HEIGHT_RATIO};
+
+    const sf::Vector2f feet_position = {
+        global_bounds.position.x + (global_bounds.size.x - feet_size.x) / 2.f,
+        global_bounds.position.y + (global_bounds.size.y - feet_size.y)};
+
+    return sf::FloatRect(feet_position, feet_size);
+}
+
+sf::FloatRect Player::getBodyBounds() {
+    if (!player_sprite) {
+        return sf::FloatRect();
+    }
+    const sf::FloatRect global_bounds = player_sprite->getGlobalBounds();
+
+    const sf::Vector2f body_size = {global_bounds.size.x * FEET_WIDTH_RATIO,
+                                    global_bounds.size.y * (BODY_HEIGHT_RATIO - FEET_HEIGHT_RATIO)};
+
+    const sf::Vector2f body_position = {
+        global_bounds.position.x + (global_bounds.size.x - body_size.x) / 2.f,
+        global_bounds.position.y + (global_bounds.size.y - (body_size.y + getFeetBounds().size.y))};
+
+    return sf::FloatRect(body_position, body_size);
 }
 
 void Player::start() {
@@ -52,7 +76,7 @@ void Player::update(float delta) {
     if (nose_sprite) {
         nose_sprite->setPosition({
             position.x,
-            position.y - getBounds().size.y / 2
+            position.y - player_sprite->getGlobalBounds().size.y / 2
         });
     }
 
@@ -70,6 +94,7 @@ void Player::render(sf::RenderWindow& window) {
     if (player_sprite) window.draw(*player_sprite);
     if (is_shooting && nose_sprite) window.draw(*nose_sprite);
 
+    if (debug_mode) drawDebugBounds(window, getFullBodyBounds());
 }
 
 void Player::handleMovement(float delta) {
@@ -128,12 +153,6 @@ void Player::handleSpringJump() {
     velocity.y = -SPRING_JUMP_FACTOR;
 }
 
-bool Player::isColliding(const sf::FloatRect& collider) {
-    // findIntersection returns std::optional<sf::FloatRect>
-    return static_cast<bool>(getBounds().findIntersection(collider));
-}
-
-
 void Player::setPlayerState(PLAYER_STATE new_state) {
     if (player_state == new_state) return; 
         
@@ -160,4 +179,17 @@ void Player::handleScreenWrapping() {
     } else if (center_of_feet_pos.x > GameConstants::SCREEN_WIDTH + right_margin) {
         position.x = left_margin;
     } 
+}
+
+void Player::drawDebugBounds(sf::RenderWindow& window, sf::FloatRect bounds) {
+    sf::RectangleShape box;
+
+    box.setPosition(bounds.position);
+    box.setSize(bounds.size);
+
+    box.setFillColor(sf::Color::Transparent);
+    box.setOutlineColor(sf::Color::Red);
+    box.setOutlineThickness(5.f);
+
+    window.draw(box);
 }

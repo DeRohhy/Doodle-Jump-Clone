@@ -18,7 +18,8 @@ public:
     Player(sf::Vector2f _position, sf::Vector2f _velocity,  float _fire_rate)
         : GameObject(_position, _velocity), fire_rate(_fire_rate) {}
 
-    sf::FloatRect getBounds();
+    sf::FloatRect getFeetBounds();
+    sf::FloatRect getBodyBounds();
 
     void start() override;
     void update(float delta) override;
@@ -27,11 +28,15 @@ public:
     void handleJump();
     void handleSpringJump();
     void handleShooting();
-    bool isColliding(const sf::FloatRect& collider);
     void handleScreenWrapping();
     
 
 private:
+    bool debug_mode = true;
+    static constexpr float FEET_WIDTH_RATIO  = 0.4f;  // 40% of sprite width
+    static constexpr float FEET_HEIGHT_RATIO = 0.3f;  // bottom 30% of sprite height
+    static constexpr float BODY_HEIGHT_RATIO = 0.7f;  // bottom 30% of sprite height
+
     const std::string RIGHT_DOODLE_PATH = "assets/right_doodle.png";
     const std::string LEFT_DOODLE_PATH = "assets/left_doodle.png";
     const std::string SHOOTING_POSE_PATH = "assets/shooting_pose.png";
@@ -57,4 +62,6 @@ private:
     sf::Vector2f mouse_position;
 
     void setPlayerState(PLAYER_STATE new_state);
+
+    void drawDebugBounds(sf::RenderWindow& window, sf::FloatRect bounds);
 };

@@ -61,6 +61,9 @@ void Chunk::render(sf::RenderWindow& window) {
     for (const auto& bullet: *bullets) {
         bullet->render(window);
     }
+    for (const auto& hole: holes) {
+        hole->render(window);
+    }
 }
 
 void Chunk::spawnRow(float y, const float last_gap) {
@@ -81,10 +84,19 @@ void Chunk::spawnRow(float y, const float last_gap) {
         tryGenerateBrokenPlatform(y);
     }
 
-    const bool spawn_enemy = random_generator.randomFloatRange(0, 1) < ENEMY_SPAWN_CHANCE;
-    if (spawn_enemy && last_gap >= MIN_PLATFROM_GAP_FOR_ENEMY) {
-        const float enemy_y = y + last_gap / 2;
-        generateEnemy(enemy_y);
+    
+    const bool spawn_hazard = random_generator.randomFloatRange(0, 1) < SPAWN_HAZARD_CHANCE;
+
+    if (spawn_hazard && last_gap >= MIN_PLATFROM_GAP_FOR_HAZARD) {
+        const bool spawn_enemy = random_generator.randomFloatRange(0, 1) < ENEMY_SPAWN_CHANCE;
+
+        float hazard_y = y + last_gap / 2.f;
+
+        if (spawn_enemy) {
+            generateEnemy(hazard_y);
+        } else {
+            tryGenerateHole(hazard_y);
+        }
     }
     
 }
@@ -189,6 +201,10 @@ void Chunk::removeOffScreenObjects() {
     while (!bullets->empty() && bullets->back()->getPosition().y <= camera_top_y) {
         bullets->pop_back();
     }
+
+    while (!holes.empty() && holes.back()->getPosition().y - holes.back()->getBounds().size.y >= camera_bottom_y) {
+        holes.pop_back();
+    }
 }
 
 void Chunk::generateNormalPlatform(float x, float y, bool spawn_spring) {
@@ -268,4 +284,13 @@ void Chunk::generateEnemy(float y) {
         new_enemy->start();
         enemies.push_front(std::move(new_enemy));
     }
+}
+
+void Chunk::tryGenerateHole(float y) {
+    const bool spawn_small_hole = random_generator.randomFloatRange(0, 1) < SMALL_HOLE_SPAWN_CHANCE;
+    const sf::Vector2f hole_position = {random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN), y};
+
+    std::unique_ptr new_hole = std::make_unique<Hole>(hole_position, spawn_small_hole);
+    new_hole->start();
+    holes.push_front(std::move(new_hole));
 }

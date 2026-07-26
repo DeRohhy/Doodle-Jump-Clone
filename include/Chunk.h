@@ -10,6 +10,7 @@
 #include "enemies/Enemy.h"
 #include "Spring.h"
 #include "Player.h"
+#include "Hole.h"
 
 class Chunk : public GameObject {
 public:
@@ -41,7 +42,10 @@ private:
     static constexpr float MIN_PLATFORM_MOVE_SPEED = 100.f;
     static constexpr float MAX_PLATFORM_MOVE_SPEED = 250.f;
 
-    static constexpr float MIN_PLATFROM_GAP_FOR_ENEMY = 230.f;
+    static constexpr float SPAWN_HAZARD_CHANCE = 0.5f;
+
+    static constexpr float MIN_PLATFROM_GAP_FOR_HAZARD = 230.f;
+
     static constexpr float ENEMY_SPAWN_CHANCE = 0.3f;
     static constexpr float MOVING_ENEMY_SPAWN_CHANCE = 0.7f;
     static constexpr float MIN_MOVING_ENEMY_SPEED = 100.f;
@@ -50,6 +54,8 @@ private:
     static constexpr int ENEMY_HEALTH_EASY = 1;
     static constexpr int ENEMY_HEALTH_MEDIUM = 2;
     static constexpr int ENEMY_HEALTH_HARD = 3;
+
+    static constexpr float SMALL_HOLE_SPAWN_CHANCE = 0.5f;
     
 
     Player* player;
@@ -60,6 +66,7 @@ private:
     std::deque<std::unique_ptr<Spring>> springs;
     std::deque<std::unique_ptr<Enemy>> enemies;
     std::deque<std::unique_ptr<Bullet>>* bullets;
+    std::deque<std::unique_ptr<Hole>> holes;
 
     void spawnRow(float y, const float last_gap);
 
@@ -74,6 +81,7 @@ private:
     void generateMovingPlatform(float x, float y);
 
     void generateEnemy(float y);
+    void tryGenerateHole(float y);
 
     void generateMovingEnemy(float y);
     void generateStationaryEnemy(float y);

@@ -50,7 +50,7 @@ private:
     static constexpr float VELOCITY_POWER = 0.99f;
     static constexpr float ACCEL_RATE = 7.f;
     
-    static constexpr float MAX_NOSE_ANGLE_DEG = 30.f;
+    static constexpr float MAX_NOSE_ANGLE_DEG = 45.f;
     static constexpr float NOSE_LEN = 30.f;
     static constexpr float MIN_BULLET_SPEED = 700.f;
 

@@ -149,8 +149,8 @@ void Game::handleChunkDeletion() {
 
 void Game::generateChunk() {
     const float chunk_position_y = 
-        chunks.empty() ? GameConstants::SCREEN_HEIGHT / 2.f : 
-                         chunks.front()->getPosition().y - GameConstants::CHUNK_HEIGHT;
+        chunks.empty() ? 0 : 
+                         chunks.front()->get_highest_platform_y() - GameConstants::CHUNK_HEIGHT;
     
     std::unique_ptr<Chunk> new_chunk = std::make_unique<Chunk>(
         sf::Vector2f({0, chunk_position_y}),

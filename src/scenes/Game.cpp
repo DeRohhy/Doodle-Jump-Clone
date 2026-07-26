@@ -134,7 +134,7 @@ void Game::checkChunkGeneration() {
                             - CAMERA_TRIGGER_PERCENTAGE * (GameConstants::SCREEN_HEIGHT / 2.f);
     
     static const int MAX_CHUNKS_ALLOWED = 3;
-    if (target_y <+ threshold || chunks.size() < MAX_CHUNKS_ALLOWED) {
+    if (target_y <= threshold && chunks.size() < MAX_CHUNKS_ALLOWED) {
         generateChunk();    
     } 
 }

@@ -19,7 +19,7 @@ void Enemy::start() {
     // offset enemy sprite so that
     // the center of enemy is at local x = 0
     sf::Vector2f local_bound = enemy_sprite->getLocalBounds().size;
-    enemy_sprite->setOrigin({local_bound.x / 2.0f, 0.0f});
+    enemy_sprite->setOrigin({local_bound.x / 2.f, local_bound.y / 2.f});
 
     enemy_sprite->setScale({Theme::SCALE_MEDIUM, Theme::SCALE_MEDIUM});
     enemy_sprite->setPosition(position);

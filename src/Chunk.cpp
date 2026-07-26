@@ -10,8 +10,11 @@
 
 #include <memory>
 #include <algorithm>
+#include <iostream>
 
 void Chunk::start() {
+    bullets = &player->getBulletsVectorRefrence();
+
     const float top_y = position.y;
     const float bottom_y = position.y + static_cast<float>(GameConstants::CHUNK_HEIGHT);
 
@@ -37,6 +40,9 @@ void Chunk::update(float delta) {
     for (const auto& enemy: enemies) {
         enemy->update(delta);
     }
+    for (const auto& bullet: *bullets) {
+        bullet->update(delta);
+    }
 }
 
 void Chunk::render(sf::RenderWindow& window) {
@@ -51,6 +57,9 @@ void Chunk::render(sf::RenderWindow& window) {
     } 
     for (const auto& enemy: enemies) {
         enemy->render(window);
+    }
+    for (const auto& bullet: *bullets) {
+        bullet->render(window);
     }
 }
 
@@ -128,9 +137,38 @@ void Chunk::handleCollisions() {
             game_over = true;
         }
     }
+
+
+    for (auto it = bullets->begin(); it != bullets->end(); ++it) {
+        sf::FloatRect bullet_bounds = (*it)->getBounds();
+
+        bool is_colliding = false;
+        for (auto const& enemy: enemies) {
+            is_colliding = static_cast<bool>(enemy->getBounds().findIntersection(bullet_bounds));
+            if (is_colliding) {
+                enemy->decrementHealth();
+                bullets->erase(it);
+                break;    
+            }
+        }
+
+        if (is_colliding) {
+            break;
+        }
+    }
+
+    // remove dead enemies
+    for (auto it = enemies.begin(); it != enemies.end(); ++it)
+    {
+        if ((*it)->isDead()) {
+            enemies.erase(it);
+            break;
+        }
+    }
 }
 
 void Chunk::removeOffScreenObjects() {
+    const float camera_top_y = camera->getCenter().y - (GameConstants::SCREEN_HEIGHT / 2.f);
     const float camera_bottom_y = camera->getCenter().y + (GameConstants::SCREEN_HEIGHT / 2.f);
     while (!platforms.empty() && platforms.back()->getPosition().y >= camera_bottom_y) {
         platforms.pop_back();
@@ -146,6 +184,10 @@ void Chunk::removeOffScreenObjects() {
 
     while (!enemies.empty() && enemies.back()->getPosition().y - enemies.back()->getBounds().size.y >= camera_bottom_y) {
         enemies.pop_back();
+    }
+
+    while (!bullets->empty() && bullets->back()->getPosition().y <= camera_top_y) {
+        bullets->pop_back();
     }
 }
 

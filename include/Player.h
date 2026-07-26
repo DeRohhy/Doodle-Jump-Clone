@@ -32,7 +32,7 @@ public:
     void handleShooting();
     void handleScreenWrapping();
 
-    void setBulletsPointer(std::deque<std::unique_ptr<Bullet>>* _bullets) { bullets = _bullets; }
+    std::deque<std::unique_ptr<Bullet>>& getBulletsVectorRefrence() { return bullets; }
 private:
     bool debug_mode = true;
     static constexpr float FEET_WIDTH_RATIO  = 0.4f;  // 40% of sprite width
@@ -52,7 +52,7 @@ private:
     
     static constexpr float MAX_NOSE_ANGLE_DEG = 30.f;
     static constexpr float NOSE_LEN = 30.f;
-    static constexpr float MIN_BULLET_SPEED = 1500.f;
+    static constexpr float MIN_BULLET_SPEED = 700.f;
 
     sf::Texture right_doodle_texture;
     sf::Texture left_doodle_texture;
@@ -67,7 +67,7 @@ private:
     bool is_shooting = false;
     sf::Vector2f mouse_position;
 
-    std::deque<std::unique_ptr<Bullet>>* bullets;
+    std::deque<std::unique_ptr<Bullet>> bullets;
 
 
     void setPlayerState(PLAYER_STATE new_state);

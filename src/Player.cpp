@@ -144,7 +144,7 @@ void Player::handleShooting() {
         float bullet_speed = (velocity.y > 0 ? velocity.length() : 0) + MIN_BULLET_SPEED;
         std::unique_ptr new_bullet = std::make_unique<Bullet>(bullet_spawn_position, bullet_direction, bullet_speed);
         new_bullet->start();
-        bullets->push_front(std::move(new_bullet));
+        bullets.push_front(std::move(new_bullet));
 
         setPlayerState(PLAYER_STATE::SHOOTING);
     }

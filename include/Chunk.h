@@ -59,6 +59,7 @@ private:
     std::deque<std::unique_ptr<BrokenPlatform>> broken_platforms;
     std::deque<std::unique_ptr<Spring>> springs;
     std::deque<std::unique_ptr<Enemy>> enemies;
+    std::deque<std::unique_ptr<Bullet>>* bullets;
 
     void spawnRow(float y, const float last_gap);
 

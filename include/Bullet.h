@@ -13,6 +13,7 @@ public:
     void update(float delta) override;
     void render(sf::RenderWindow& window) override;
 
+    sf::FloatRect getBounds() { return bullet_shape.getGlobalBounds(); }
 private:
     static constexpr float BULLET_RADIUS = 6.f;
     sf::CircleShape bullet_shape;

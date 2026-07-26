@@ -7,9 +7,6 @@ void App::run() {
     manager.changeScene(std::make_unique<MainMenu>(manager));
     manager.applyPendingScene();
 
-    // sync to monitor's refresh rate
-    window.setVerticalSyncEnabled(true);
-
     while (window.isOpen()) {
         float delta = clock.restart().asSeconds();
 

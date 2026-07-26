@@ -5,11 +5,9 @@
 #include "Theme.h"
 #include "platforms/BrokenPlatform.h"
 
-
 #include <cmath>
 #include <numbers>
 #include <iostream>
-
 sf::FloatRect Player::getFeetBounds() {
     if (!player_sprite) {
         return sf::FloatRect();
@@ -123,23 +121,30 @@ void Player::handleShooting() {
         fire_rate_timer = fire_rate;
         is_shooting = true;
 
+        float screen_half_width = GameConstants::SCREEN_WIDTH / 2;
+        float relative_distance = mouse_position.x - screen_half_width;
+        relative_distance = std::clamp(relative_distance, -screen_half_width, screen_half_width);
 
-
-        float half_width = GameConstants::SCREEN_WIDTH / 2;
-        float relative_distance = mouse_position.x - half_width;
-
-
-        if (relative_distance < -half_width)
-            relative_distance = -half_width;
-        else if (relative_distance > half_width)
-            relative_distance = half_width;
-
-        static constexpr float MAX_NOSE_ANGLE_DEG = 30.f;
-        float nose_angle_degree = MAX_NOSE_ANGLE_DEG * (relative_distance / half_width);
+        float nose_angle_degree = MAX_NOSE_ANGLE_DEG * (relative_distance / screen_half_width);
+        nose_angle_degree = std::clamp(nose_angle_degree, -MAX_NOSE_ANGLE_DEG, +MAX_NOSE_ANGLE_DEG);
 
         if (nose_sprite) {
-            nose_sprite->setRotation(sf::degrees(nose_angle_degree ));
+            nose_sprite->setRotation(sf::degrees(nose_angle_degree));
         }
+
+        float nose_angle_radian = nose_angle_degree * std::numbers::pi / 180.f;
+        sf::Vector2f bullet_direction(
+            std::sin(nose_angle_radian),
+            -std::cos(nose_angle_radian)
+        );
+
+        sf::Vector2f nose_base_position = nose_sprite ? nose_sprite->getPosition() : player_sprite->getPosition();
+        sf::Vector2f bullet_spawn_position = nose_base_position + (bullet_direction * NOSE_LEN);
+
+        float bullet_speed = (velocity.y > 0 ? velocity.length() : 0) + MIN_BULLET_SPEED;
+        std::unique_ptr new_bullet = std::make_unique<Bullet>(bullet_spawn_position, bullet_direction, bullet_speed);
+        new_bullet->start();
+        bullets->push_front(std::move(new_bullet));
 
         setPlayerState(PLAYER_STATE::SHOOTING);
     }

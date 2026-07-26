@@ -2,10 +2,12 @@
 
 #include "GameObject.h"
 #include "platforms/Platform.h"
+#include "Bullet.h"
 
 #include <SFML/Graphics.hpp>
 #include <string>
 #include <optional>
+#include <deque>
 
 enum PLAYER_STATE {
     RIGHT,
@@ -29,8 +31,8 @@ public:
     void handleSpringJump();
     void handleShooting();
     void handleScreenWrapping();
-    
 
+    void setBulletsPointer(std::deque<std::unique_ptr<Bullet>>* _bullets) { bullets = _bullets; }
 private:
     bool debug_mode = true;
     static constexpr float FEET_WIDTH_RATIO  = 0.4f;  // 40% of sprite width
@@ -47,6 +49,10 @@ private:
     static constexpr float TOP_SPEED = 700.f;
     static constexpr float VELOCITY_POWER = 0.99f;
     static constexpr float ACCEL_RATE = 7.f;
+    
+    static constexpr float MAX_NOSE_ANGLE_DEG = 30.f;
+    static constexpr float NOSE_LEN = 30.f;
+    static constexpr float MIN_BULLET_SPEED = 1500.f;
 
     sf::Texture right_doodle_texture;
     sf::Texture left_doodle_texture;
@@ -61,7 +67,9 @@ private:
     bool is_shooting = false;
     sf::Vector2f mouse_position;
 
-    void setPlayerState(PLAYER_STATE new_state);
+    std::deque<std::unique_ptr<Bullet>>* bullets;
 
+
+    void setPlayerState(PLAYER_STATE new_state);
     void drawDebugBounds(sf::RenderWindow& window, sf::FloatRect bounds);
 };

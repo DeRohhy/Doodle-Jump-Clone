@@ -44,4 +44,5 @@ private:
     void checkChunkGeneration();
     void handleChunkDeletion();
     void generateChunk();
+    void handleGameOver();
 };

@@ -78,10 +78,13 @@ void Game::update(float delta) {
     lerpCameraPosition(delta);
 
     const float camera_bottom_y = camera.getCenter().y + (GameConstants::SCREEN_HEIGHT / 2.f);
-    if (player->getPosition().y > camera_bottom_y) {
-        GameSettings::getInstance().setLastScore(score);
-        GameSettings::getInstance().setHighScore(score);
-        manager.changeScene(std::make_unique<GameOverMenu>(manager));
+    if (player->getPosition().y - (player->getBodyBounds().size.y + player->getFeetBounds().size.y) > camera_bottom_y) {
+        handleGameOver();
+    }
+    for (const auto& chunk: chunks) {
+        if (chunk->isGameOver()) {
+            handleGameOver();
+        }
     }
 }
 
@@ -160,4 +163,10 @@ void Game::generateChunk() {
     new_chunk->start();
     
     chunks.push_front(std::move(new_chunk));    
+}
+
+void Game::handleGameOver() {
+    GameSettings::getInstance().setLastScore(score);
+    GameSettings::getInstance().setHighScore(score);
+    manager.changeScene(std::make_unique<GameOverMenu>(manager));
 }

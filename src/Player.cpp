@@ -2,6 +2,7 @@
 
 #include "singletons/ResourceManager.h"
 #include "GameConstants.h"
+#include "Theme.h"
 #include "platforms/BrokenPlatform.h"
 
 
@@ -31,11 +32,11 @@ void Player::start() {
     // and the center between player legs is at local x = 0
     sf::Vector2f player_local_bounds = player_sprite->getLocalBounds().size;
     player_sprite->setOrigin({player_local_bounds.x / 2, player_local_bounds.y});
-    player_sprite->setScale({SPRITE_SCALE, SPRITE_SCALE});
+    player_sprite->setScale({Theme::SCALE_MEDIUM, Theme::SCALE_MEDIUM});
 
     sf::Vector2f nose_local_bounds = nose_sprite->getLocalBounds().size;
     nose_sprite->setOrigin({nose_local_bounds.x / 2, nose_local_bounds.y / 2});
-    nose_sprite->setScale({SPRITE_SCALE, SPRITE_SCALE});
+    nose_sprite->setScale({Theme::SCALE_MEDIUM, Theme::SCALE_MEDIUM});
 
     fire_rate_timer = fire_rate;
 }

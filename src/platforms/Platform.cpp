@@ -1,7 +1,6 @@
 #include "platforms/Platform.h"
 
 #include "singletons/ResourceManager.h"
-#include "singletons/GameConfig.h"
 
 sf::FloatRect Platform::getBounds() {
     if (!platform_sprite) {

@@ -5,10 +5,12 @@
 #include "scenes/GameOverMenu.h"
 #include "scenes/SceneManager.h"
 
+#include "Theme.h"
+
 Game::Game(SceneManager& _manager) : Scene(_manager) {
     camera = sf::View(sf::FloatRect(
         {0, 0},
-        {GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT}
+        {GameConstants::SCREEN_WIDTH, GameConstants::SCREEN_HEIGHT}
     ));
 
     background_texture = ResourceManager<sf::Texture>::getInstance().get(BACKGROUND_PATH);
@@ -16,11 +18,27 @@ Game::Game(SceneManager& _manager) : Scene(_manager) {
 
     font = ResourceManager<sf::Font>::getInstance().get(FONT_PATH);
 
-    
+    sf::Vector2f player_position = {GameConstants::SCREEN_WIDTH / 2, BOTTOM_Y};
+    sf::Vector2f player_velocity = {GameConstants::SCREEN_WIDTH / 2, BOTTOM_Y};
+    float player_fire_rate;
+    switch (GameSettings::getInstance().getDifficulty())
+    {
+        default:
+        case Difficulty::EASY:
+            player_fire_rate = 0.3;
+            break;
+        case Difficulty::MEDIUM:
+            player_fire_rate = 0.5;
+            break;
+        case Difficulty::HARD:
+            player_fire_rate = 0.7;
+            break;
+    }
+
     player = std::make_unique<Player>(
-        sf::Vector2f{GameConfig::SCREEN_WIDTH / 2, BOTTOM_Y},
-        sf::Vector2f(),
-        0.3
+        player_position,
+        player_velocity,
+        player_fire_rate
     );
 
     font = ResourceManager<sf::Font>::getInstance().get(FONT_PATH);
@@ -29,15 +47,12 @@ Game::Game(SceneManager& _manager) : Scene(_manager) {
 }
 
 void Game::start() {
-    score_label.emplace(font);
-    score_label->setCharacterSize(GameConfig::NORMAL_FONT_SIZE);
-    score_label->setFillColor(GameConfig::MAIN_COLOR);
-    score_label->setStyle(sf::Text::Bold);
-    const int score_label_x = 20, score_label_y = 20.f;
-    score_label->setPosition({score_label_x, score_label_y});
+    const sf::Vector2f score_label_position = {20.f, 20.f};
+    makeText(score_label, "", font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Bold);
+    score_label->setPosition(score_label_position);
 
     player->start();
-
+    // give player a starting jump
     player->handleJump();
     
     // generate 2 starting chunks
@@ -62,7 +77,7 @@ void Game::update(float delta) {
     handleChunkDeletion();
     lerpCameraPosition(delta);
 
-    const float camera_bottom_y = camera.getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
+    const float camera_bottom_y = camera.getCenter().y + (GameConstants::SCREEN_HEIGHT / 2.f);
     if (player->getPosition().y > camera_bottom_y) {
         GameSettings::getInstance().setLastScore(score);
         GameSettings::getInstance().setHighScore(score);
@@ -98,14 +113,14 @@ void Game::lerpCameraPosition(float delta) {
     const float camera_center_y = camera.getCenter().y;
 
     const float threshold = camera_center_y 
-                            - GameConfig::CAMERA_TRIGGER_PERCENTAGE * (GameConfig::SCREEN_HEIGHT / 2.f);
+                            - CAMERA_TRIGGER_PERCENTAGE * (GameConstants::SCREEN_HEIGHT / 2.f);
 
     if (target_y >= threshold) {
         return;
     }
 
     // framerate-independent lerp
-    const float blend = 1.f - std::exp(-GameConfig::CAMERA_LERP_SPEED * delta);
+    const float blend = 1.f - std::exp(-CAMERA_LERP_SPEED * delta);
     const float new_y = camera_center_y + (target_y - threshold) * blend;
 
     camera.setCenter({camera.getCenter().x, new_y});
@@ -116,7 +131,7 @@ void Game::checkChunkGeneration() {
     const float camera_center_y = camera.getCenter().y;
 
     const float threshold = camera_center_y 
-                            - GameConfig::CAMERA_TRIGGER_PERCENTAGE * (GameConfig::SCREEN_HEIGHT / 2.f);
+                            - CAMERA_TRIGGER_PERCENTAGE * (GameConstants::SCREEN_HEIGHT / 2.f);
     
     static const int MAX_CHUNKS_ALLOWED = 3;
     if (target_y <+ threshold || chunks.size() < MAX_CHUNKS_ALLOWED) {
@@ -125,7 +140,7 @@ void Game::checkChunkGeneration() {
 }
 
 void Game::handleChunkDeletion() {
-    const float camera_bottom_y = camera.getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
+    const float camera_bottom_y = camera.getCenter().y + (GameConstants::SCREEN_HEIGHT / 2.f);
 
     while (!chunks.empty() && chunks.back()->getPosition().y >= camera_bottom_y) {
         chunks.pop_back();
@@ -134,8 +149,8 @@ void Game::handleChunkDeletion() {
 
 void Game::generateChunk() {
     const float chunk_position_y = 
-        chunks.empty() ? GameConfig::SCREEN_HEIGHT / 2.f : 
-                         chunks.front()->getPosition().y - GameConfig::CHUNK_HEIGHT;
+        chunks.empty() ? GameConstants::SCREEN_HEIGHT / 2.f : 
+                         chunks.front()->getPosition().y - GameConstants::CHUNK_HEIGHT;
     
     std::unique_ptr<Chunk> new_chunk = std::make_unique<Chunk>(
         sf::Vector2f({0, chunk_position_y}),

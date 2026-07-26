@@ -2,12 +2,13 @@
 
 
 #include <SFML/Graphics.hpp>
+
 #include <vector>
 #include <memory>
 #include <deque>
 #include <string>
 
-#include "singletons/GameConfig.h"
+#include "GameConstants.h"
 #include "scenes/Scene.h"
 #include "Player.h"
 #include "Chunk.h"
@@ -23,7 +24,10 @@ public:
 private:
     const std::string BACKGROUND_PATH = "assets/background.png";
     const std::string FONT_PATH = "assets/ariblk.ttf";
-    static constexpr int BOTTOM_Y = GameConfig::SCREEN_HEIGHT - 100;
+    static constexpr int BOTTOM_Y = GameConstants::SCREEN_HEIGHT - 100;
+    static constexpr float CAMERA_TRIGGER_PERCENTAGE = 0.1f;
+    static constexpr float CAMERA_LERP_SPEED = 15.f;
+
     sf::View camera;
 
     sf::Texture background_texture;

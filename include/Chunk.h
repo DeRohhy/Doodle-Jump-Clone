@@ -26,6 +26,11 @@ private:
     static constexpr float SIDE_MARGIN = 50.f;
     static constexpr int MAX_BROKEN_PLATFORM_ATTEMPTS = 2;
     static constexpr int MAX_SPRING_OFFSET = 15;
+    static constexpr float MIN_OBJ_GAP = 80.f;
+    static constexpr float MAX_OBJ_GAP = 190.f;
+    static constexpr float MIN_PLATFORM_MOVE_SPEED = 100.f;
+    static constexpr float MAX_PLATFORM_MOVE_SPEED = 250.f;
+    
 
     Player* player;
     sf::View* camera;

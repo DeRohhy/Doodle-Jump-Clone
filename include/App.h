@@ -2,12 +2,12 @@
 
 #include <SFML/Graphics.hpp>
 #include "scenes/SceneManager.h"
-#include "singletons/GameConfig.h"
+#include "GameConstants.h"
 
 class App {
 public:
     App() : window(
-        sf::RenderWindow(sf::VideoMode({GameConfig::SCREEN_WIDTH, GameConfig::SCREEN_HEIGHT}),
+        sf::RenderWindow(sf::VideoMode({GameConstants::SCREEN_WIDTH, GameConstants::SCREEN_HEIGHT}),
                          "Doodle Jump Clone")
         ) {}
 

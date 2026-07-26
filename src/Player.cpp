@@ -1,8 +1,10 @@
 #include "Player.h"
 
 #include "singletons/ResourceManager.h"
-#include "singletons/GameConfig.h"
+#include "GameConstants.h"
 #include "platforms/BrokenPlatform.h"
+
+
 #include <cmath>
 #include <numbers>
 #include <iostream>
@@ -42,7 +44,7 @@ void Player::update(float delta) {
     handleScreenWrapping();
     handleMovement(delta);
     handleShooting();
-    velocity.y += GameConfig::GRAVITY * delta;
+    velocity.y += GameConstants::GRAVITY * delta;
     position += velocity * delta;
 
     if (player_sprite) player_sprite->setPosition(position);
@@ -97,7 +99,7 @@ void Player::handleShooting() {
 
 
 
-        float half_width = GameConfig::SCREEN_WIDTH / 2;
+        float half_width = GameConstants::SCREEN_WIDTH / 2;
         float relative_distance = mouse_position.x - half_width;
 
 
@@ -153,9 +155,8 @@ void Player::handleScreenWrapping() {
     sf::Vector2f center_of_feet_pos = position;
 
     if (center_of_feet_pos.x < left_margin) {
-        // position.x = GameConfig::SCREEN_WIDTH - player_sprite->getOrigin().x;
-        position.x = GameConfig::SCREEN_WIDTH;
-    } else if (center_of_feet_pos.x > GameConfig::SCREEN_WIDTH + right_margin) {
+        position.x = GameConstants::SCREEN_WIDTH;
+    } else if (center_of_feet_pos.x > GameConstants::SCREEN_WIDTH + right_margin) {
         position.x = left_margin;
     } 
 }

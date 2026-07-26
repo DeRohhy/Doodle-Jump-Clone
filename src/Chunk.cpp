@@ -1,14 +1,15 @@
 #include "Chunk.h"
-#include "singletons/GameConfig.h"
 #include "platforms/NormalPlatform.h"
 #include "platforms/MovingPlatform.h"
+
+#include "GameConstants.h"
 
 #include <memory>
 #include <algorithm>
 
 void Chunk::start() {
     const float top_y = position.y;
-    const float bottom_y = position.y + static_cast<float>(GameConfig::CHUNK_HEIGHT);
+    const float bottom_y = position.y + static_cast<float>(GameConstants::CHUNK_HEIGHT);
 
     float y = bottom_y - getRandomGap();
     while (y >= top_y) {
@@ -42,7 +43,7 @@ void Chunk::render(sf::RenderWindow& window) {
 }
 
 void Chunk::spawnRow(float y) {
-    const float x = random_generator.randomFloatRange(SIDE_MARGIN, GameConfig::SCREEN_WIDTH - SIDE_MARGIN);
+    const float x = random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN);
 
     const bool spawn_moving_platform = random_generator.randomFloatRange(0, 1) < MOVING_PLATFORM_SPAWN_CHANCE;
     if (spawn_moving_platform) {
@@ -62,13 +63,13 @@ void Chunk::spawnRow(float y) {
 
 void Chunk::tryGenerateBrokenPlatform(float y) {
     for (int i = 0; i < MAX_BROKEN_PLATFORM_ATTEMPTS; i++) {
-        const float x = random_generator.randomFloatRange(SIDE_MARGIN, GameConfig::SCREEN_WIDTH - SIDE_MARGIN);
+        const float x = random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN);
         generateBrokenPlatform(x, y);
     }
 }
 
 float Chunk::getRandomGap() {
-    return random_generator.randomFloatRange(GameConfig::MIN_OBJ_GAP, GameConfig::MAX_OBJ_GAP);
+    return random_generator.randomFloatRange(MIN_OBJ_GAP, MAX_OBJ_GAP);
 }
 
 void Chunk::handleCollisions() {
@@ -96,7 +97,7 @@ void Chunk::handleCollisions() {
 }
 
 void Chunk::removeOffScreenObjects() {
-    const float camera_bottom_y = camera->getCenter().y + (GameConfig::SCREEN_HEIGHT / 2.f);
+    const float camera_bottom_y = camera->getCenter().y + (GameConstants::SCREEN_HEIGHT / 2.f);
     while (!platforms.empty() && platforms.back()->getPosition().y >= camera_bottom_y) {
         platforms.pop_back();
     }
@@ -152,7 +153,7 @@ void Chunk::generateBrokenPlatform(float x, float y) {
 
 
 void Chunk::generateMovingPlatform(float x, float y) {
-    const float speed = random_generator.randomFloatRange(GameConfig::MIN_PLATFORM_MOVE_SPEED, GameConfig::MAX_PLATFORM_MOVE_SPEED);
+    const float speed = random_generator.randomFloatRange(MIN_PLATFORM_MOVE_SPEED, MAX_PLATFORM_MOVE_SPEED);
     std::unique_ptr new_platform = std::make_unique<MovingPlatform>(sf::Vector2f{x, y}, speed);
     new_platform->start();
     platforms.push_front(std::move(new_platform));    

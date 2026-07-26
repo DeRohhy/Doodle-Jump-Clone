@@ -118,7 +118,7 @@ void Chunk::handleCollisions() {
             spring->setCompressed(false);
         }
     }
-
+    
     for (auto const& enemy: enemies) {
         bool is_foot_colliding = static_cast<bool>(player_feet.findIntersection(enemy->getBounds()));
         bool is_body_colliding = static_cast<bool>(player_body.findIntersection(enemy->getBounds()));
@@ -142,6 +142,10 @@ void Chunk::removeOffScreenObjects() {
 
     while (!springs.empty() && springs.back()->getPosition().y >= camera_bottom_y) {
         springs.pop_back();
+    }
+
+    while (!enemies.empty() && enemies.back()->getPosition().y - enemies.back()->getBounds().size.y >= camera_bottom_y) {
+        enemies.pop_back();
     }
 }
 

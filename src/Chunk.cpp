@@ -1,8 +1,12 @@
 #include "Chunk.h"
+#include "singletons/GameSettings.h"
 #include "platforms/NormalPlatform.h"
 #include "platforms/MovingPlatform.h"
 
 #include "GameConstants.h"
+
+#include "enemies/MovingEnemy.h"
+#include "enemies/StationaryEnemy.h"
 
 #include <memory>
 #include <algorithm>
@@ -12,10 +16,12 @@ void Chunk::start() {
     const float bottom_y = position.y + static_cast<float>(GameConstants::CHUNK_HEIGHT);
 
     float y = bottom_y - getRandomGap();
+    float last_gap = 0;
     while (y >= top_y) {
-        spawnRow(y);
+        spawnRow(y, last_gap);
 
-        y -= getRandomGap();
+        last_gap = getRandomGap();
+        y -= last_gap;       
     }
 }
 
@@ -27,6 +33,9 @@ void Chunk::update(float delta) {
     }
     for (const auto& platform: broken_platforms) {
         platform->update(delta);
+    }
+    for (const auto& enemy: enemies) {
+        enemy->update(delta);
     }
 }
 
@@ -40,9 +49,12 @@ void Chunk::render(sf::RenderWindow& window) {
     for (const auto& spring: springs) {
         spring->render(window);
     } 
+    for (const auto& enemy: enemies) {
+        enemy->render(window);
+    }
 }
 
-void Chunk::spawnRow(float y) {
+void Chunk::spawnRow(float y, const float last_gap) {
     const float x = random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN);
 
     const bool spawn_moving_platform = random_generator.randomFloatRange(0, 1) < MOVING_PLATFORM_SPAWN_CHANCE;
@@ -59,6 +71,13 @@ void Chunk::spawnRow(float y) {
     if (spawn_broken_platform) {
         tryGenerateBrokenPlatform(y);
     }
+
+    const bool spawn_enemy = random_generator.randomFloatRange(0, 1) < ENEMY_SPAWN_CHANCE;
+    if (spawn_enemy && last_gap >= MIN_PLATFROM_GAP_FOR_ENEMY) {
+        const float enemy_y = y + last_gap / 2;
+        generateEnemy(enemy_y);
+    }
+    
 }
 
 void Chunk::tryGenerateBrokenPlatform(float y) {
@@ -73,25 +92,40 @@ float Chunk::getRandomGap() {
 }
 
 void Chunk::handleCollisions() {
-    const float player_feet_y = player->getPosition().y;
+    const sf::FloatRect player_feet = player->getFeetBounds();
+    const sf::FloatRect player_body = player->getBodyBounds();
+    const bool is_player_falling = player->getVelocity().y > 0;
 
     for (auto const& platform: platforms) {
-        if (player_feet_y - 10 < platform->getPosition().y && player->isColliding(platform->getBounds()) && player->getVelocity().y > 0)  {
+        bool is_colliding = static_cast<bool>(player_feet.findIntersection(platform->getBounds()));
+        if (is_colliding && is_player_falling) {
             player->handleJump();
         }
     }
 
     for (auto it = broken_platforms.begin(); it != broken_platforms.end(); ++it) {
-        if (player_feet_y - 10 < (*it)->getPosition().y && player->isColliding(it->get()->getBounds()) && player->getVelocity().y > 0) {
+        bool is_colliding = static_cast<bool>(player_feet.findIntersection((*it)->getBounds()));
+        if (is_colliding && is_player_falling) {
             broken_platforms.erase(it);
             break;
         }
     }
 
     for (auto const& spring: springs) {
-        if (player->isColliding(spring->getBounds()) && player->getVelocity().y > 0 && spring->isCompressed()) {
+        bool is_colliding = static_cast<bool>(player_feet.findIntersection(spring->getBounds()));
+        if (is_colliding && is_player_falling) {
             player->handleSpringJump();
             spring->setCompressed(false);
+        }
+    }
+
+    for (auto const& enemy: enemies) {
+        bool is_foot_colliding = static_cast<bool>(player_feet.findIntersection(enemy->getBounds()));
+        bool is_body_colliding = static_cast<bool>(player_body.findIntersection(enemy->getBounds()));
+        if (is_foot_colliding && is_player_falling) {
+            player->handleSpringJump();
+        } else if (is_body_colliding) {
+            game_over = true;
         }
     }
 }
@@ -151,7 +185,6 @@ void Chunk::generateBrokenPlatform(float x, float y) {
     broken_platforms.push_front(std::move(new_platform));
 }
 
-
 void Chunk::generateMovingPlatform(float x, float y) {
     const float speed = random_generator.randomFloatRange(MIN_PLATFORM_MOVE_SPEED, MAX_PLATFORM_MOVE_SPEED);
     std::unique_ptr new_platform = std::make_unique<MovingPlatform>(sf::Vector2f{x, y}, speed);
@@ -159,3 +192,34 @@ void Chunk::generateMovingPlatform(float x, float y) {
     platforms.push_front(std::move(new_platform));    
 }
 
+void Chunk::generateEnemy(float y) {
+    const bool spawn_moving_enemy = random_generator.randomFloatRange(0, 1) < MOVING_ENEMY_SPAWN_CHANCE;
+
+    int health;
+    switch (GameSettings::getInstance().getDifficulty())
+    {
+    default:
+    case Difficulty::EASY:
+        health = ENEMY_HEALTH_EASY;
+        break;
+    case Difficulty::MEDIUM:
+        health = ENEMY_HEALTH_MEDIUM;
+        break;
+    case Difficulty::HARD:
+        health = ENEMY_HEALTH_HARD;
+        break;
+    }
+
+    const sf::Vector2f enemy_position = {random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN), y};
+
+    if (spawn_moving_enemy) {
+        const float speed = random_generator.randomFloatRange(MIN_MOVING_ENEMY_SPEED, MAX_MOVING_ENEMY_SPEED);
+        std::unique_ptr new_enemy = std::make_unique<MovingEnemy>(enemy_position, speed, health);
+        new_enemy->start();
+        enemies.push_front(std::move(new_enemy));
+    } else {
+        std::unique_ptr new_enemy = std::make_unique<StationaryEnemy>(enemy_position, health);
+        new_enemy->start();
+        enemies.push_front(std::move(new_enemy));
+    }
+}

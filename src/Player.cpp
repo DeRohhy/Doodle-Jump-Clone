@@ -94,7 +94,7 @@ void Player::render(sf::RenderWindow& window) {
     if (player_sprite) window.draw(*player_sprite);
     if (is_shooting && nose_sprite) window.draw(*nose_sprite);
 
-    if (debug_mode) drawDebugBounds(window, getFullBodyBounds());
+    if (debug_mode) drawDebugBounds(window, getBodyBounds());
 }
 
 void Player::handleMovement(float delta) {

@@ -25,11 +25,9 @@ private:
     const std::string BACKGROUND_PATH = "assets/background.png";
     const std::string FONT_PATH = "assets/ariblk.ttf";
     static constexpr int BOTTOM_Y = GameConstants::SCREEN_HEIGHT - 100;
-    static constexpr float CAMERA_TRIGGER_PERCENTAGE = 0.1f;
-    static constexpr float CAMERA_LERP_SPEED = 15.f;
 
     sf::View camera;
-
+    
     sf::Texture background_texture;
     std::optional<sf::Sprite> background_sprite; 
 
@@ -38,9 +36,9 @@ private:
 
     sf::Font font;
     std::optional<sf::Text> score_label;
-    int score;    
+    int score;
 
-    void lerpCameraPosition(float delta);
+    void updateCameraPosition();
     void checkChunkGeneration();
     void handleChunkDeletion();
     void generateChunk();

@@ -75,7 +75,7 @@ void Game::update(float delta) {
 
     checkChunkGeneration();
     handleChunkDeletion();
-    lerpCameraPosition(delta);
+    updateCameraPosition();
 
     const float camera_bottom_y = camera.getCenter().y + (GameConstants::SCREEN_HEIGHT / 2.f);
     if (player->getPosition().y - (player->getBodyBounds().size.y + player->getFeetBounds().size.y) > camera_bottom_y) {
@@ -111,20 +111,17 @@ void Game::render(sf::RenderWindow& window) {
     window.draw(score_label.value());
 }
 
-void Game::lerpCameraPosition(float delta) {
+void Game::updateCameraPosition() {
     const float target_y = player->getPosition().y;
     const float camera_center_y = camera.getCenter().y;
 
-    const float threshold = camera_center_y 
-                            - CAMERA_TRIGGER_PERCENTAGE * (GameConstants::SCREEN_HEIGHT / 2.f);
+    const float threshold = camera_center_y;
 
     if (target_y >= threshold) {
         return;
     }
 
-    // framerate-independent lerp
-    const float blend = 1.f - std::exp(-CAMERA_LERP_SPEED * delta);
-    const float new_y = camera_center_y + (target_y - threshold) * blend;
+    const float new_y = camera_center_y + (target_y - threshold);
 
     camera.setCenter({camera.getCenter().x, new_y});
 }
@@ -133,8 +130,7 @@ void Game::checkChunkGeneration() {
     const float target_y = player->getPosition().y;
     const float camera_center_y = camera.getCenter().y;
 
-    const float threshold = camera_center_y 
-                            - CAMERA_TRIGGER_PERCENTAGE * (GameConstants::SCREEN_HEIGHT / 2.f);
+    const float threshold = camera_center_y;
     
     static const int MAX_CHUNKS_ALLOWED = 3;
     if (target_y <= threshold && chunks.size() < MAX_CHUNKS_ALLOWED) {

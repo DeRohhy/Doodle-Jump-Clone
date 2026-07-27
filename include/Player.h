@@ -32,9 +32,13 @@ public:
     void handleShooting();
     void handleScreenWrapping();
 
+    void freezePlayer() { freeze_player = true; }
+    void playHoleDeathAnimation(sf::Vector2f hole_center, float delta);
+    bool isPlayerFullyShrinked() { return player_fully_shrinked; }
+
     std::deque<std::unique_ptr<Bullet>>& getBulletsVectorRefrence() { return bullets; }
 private:
-    bool debug_mode = true;
+    bool debug_mode = false;
     static constexpr float FEET_WIDTH_RATIO  = 0.4f;  // 40% of sprite width
     static constexpr float FEET_HEIGHT_RATIO = 0.3f;  // bottom 30% of sprite height
     static constexpr float BODY_HEIGHT_RATIO = 0.7f;  // bottom 30% of sprite height
@@ -44,7 +48,7 @@ private:
     const std::string SHOOTING_POSE_PATH = "assets/shooting_pose.png";
     const std::string NOSE_PATH = "assets/nose.png";
 
-    static constexpr float JUMP_FACTOR = 800.f;
+    static constexpr float JUMP_FACTOR = 750.f;
     static constexpr float SPRING_JUMP_FACTOR = 1500.f;
     static constexpr float TOP_SPEED = 700.f;
     static constexpr float VELOCITY_POWER = 0.99f;
@@ -59,6 +63,9 @@ private:
     sf::Texture shooting_pose_texture;
     sf::Texture nose_texture;
     std::optional<sf::Sprite> player_sprite, nose_sprite; 
+
+    bool freeze_player = false;
+    bool player_fully_shrinked = false;
 
     PLAYER_STATE player_state = PLAYER_STATE::RIGHT;
 

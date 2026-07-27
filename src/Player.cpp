@@ -64,11 +64,13 @@ void Player::start() {
 }
 
 void Player::update(float delta) {
-    handleScreenWrapping();
-    handleMovement(delta);
-    handleShooting();
-    velocity.y += GameConstants::GRAVITY * delta;
-    position += velocity * delta;
+    if (!freeze_player) {
+        handleScreenWrapping();
+        handleMovement(delta);
+        handleShooting();
+        velocity.y += GameConstants::GRAVITY * delta;
+        position += velocity * delta;
+    }
 
     if (player_sprite) player_sprite->setPosition(position);
     if (nose_sprite) {
@@ -197,4 +199,21 @@ void Player::drawDebugBounds(sf::RenderWindow& window, sf::FloatRect bounds) {
     box.setOutlineThickness(5.f);
 
     window.draw(box);
+}
+
+void Player::playHoleDeathAnimation(sf::Vector2f hold_center, float delta) {
+    static constexpr float ANIMATION_TIME = 1.f;
+    static const sf::Vector2f vel = (hold_center - position) / ANIMATION_TIME;
+    static const float shrink_speed = player_sprite->getScale().x / ANIMATION_TIME;
+
+    if (player_fully_shrinked)
+        return;
+
+    float new_scale = std::max(0.f, player_sprite->getScale().x - shrink_speed * delta);
+    player_sprite->setScale({new_scale, new_scale});
+    nose_sprite->setScale({new_scale, new_scale});
+    position += vel * delta;
+    
+    if (new_scale == 0)
+        player_fully_shrinked = true;
 }

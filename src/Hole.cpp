@@ -27,6 +27,10 @@ sf::FloatRect Hole::getBounds() {
     return hole_sprite->getGlobalBounds();
 }
 
+sf::Vector2f Hole::getCenterPoint() {
+    return hole_sprite->getPosition();
+}
+
 void Hole::render(sf::RenderWindow& window) {
     if (hole_sprite) {
         window.draw(hole_sprite.value());

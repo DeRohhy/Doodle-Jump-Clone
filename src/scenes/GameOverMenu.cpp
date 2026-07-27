@@ -13,6 +13,9 @@
 #include <memory>
 
 GameOverMenu::GameOverMenu(SceneManager& _manager) : Scene(_manager) {
+    game_over_buffer = ResourceManager<sf::SoundBuffer>::getInstance().get(GAME_OVER_SOUND_PATH);
+    game_over_sound.emplace(game_over_buffer);
+    
     background_texture = ResourceManager<sf::Texture>::getInstance().get(BACKGROUND_PATH);
     background_sprite.emplace(background_texture);
 
@@ -23,6 +26,8 @@ GameOverMenu::GameOverMenu(SceneManager& _manager) : Scene(_manager) {
 }
 
 void GameOverMenu::start() {
+    game_over_sound->play();
+
     const sf::Vector2f title_position = {GameConstants::SCREEN_WIDTH / 2, 120.f};
     makeText(title, "Game Over", font, Theme::FONT_TITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Bold);
     title->setPosition(title_position);
@@ -34,7 +39,7 @@ void GameOverMenu::start() {
 
     const sf::Vector2f score_position = {GameConstants::SCREEN_WIDTH / 2, high_score_position.y + 50.f};
     const int score_amount = GameSettings::getInstance().getLastScore();
-    makeText(score, "High Score: " + std::to_string(score_amount), font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Bold);
+    makeText(score, "Your Score: " + std::to_string(score_amount), font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Bold);
     score->setPosition(score_position);
 
     const sf::Vector2f restart_button_position = {GameConstants::SCREEN_WIDTH / 2, 500.f};

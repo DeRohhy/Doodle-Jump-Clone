@@ -1,6 +1,6 @@
 # Doodle Jump Clone 🚀
 
-A simple Doodle Jump clone built with **C++** and **SFML 3.0**.
+A simple Doodle Jump clone built with **C++** and **SFML 3.1.0**.
 
 ## Features
 - Endless procedural platform generation

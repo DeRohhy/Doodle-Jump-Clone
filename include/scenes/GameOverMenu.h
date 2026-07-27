@@ -7,7 +7,7 @@
 
 class GameOverMenu : public Scene {
 public:
-    GameOverMenu(SceneManager& _manager);
+    GameOverMenu(SceneManager& _manager, MusicPlayer* _music_player);
     ~GameOverMenu() override = default;
 
     void start() override;

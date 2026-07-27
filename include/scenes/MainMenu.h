@@ -1,12 +1,11 @@
 #pragma once
 
 #include "scenes/Scene.h"
-
 #include <SFML/Graphics.hpp>
 
 class MainMenu : public Scene {
 public:
-    MainMenu(SceneManager& _manager);
+    MainMenu(SceneManager& _manager, MusicPlayer* _music_player);
     ~MainMenu() override = default;
 
     void start() override;
@@ -18,6 +17,8 @@ private:
     const std::string FONT_PATH = "assets/ariblk.ttf";
     const std::string START_BUTTON_PATH = "assets/start_button.png";
     const std::string SETTINGS_BUTTON_PATH = "assets/settings_button.png";
+    const std::string MAIN_MENU_MUSIC_PATH = "sounds/main_music_song.wav";
+
 
     sf::Texture background_texture;
     std::optional<sf::Sprite> background_sprite; 

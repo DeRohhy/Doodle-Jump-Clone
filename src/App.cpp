@@ -4,7 +4,7 @@
 #include "scenes/MainMenu.h"
 
 void App::run() {
-    manager.changeScene(std::make_unique<MainMenu>(manager));
+    manager.changeScene(std::make_unique<MainMenu>(manager, &music_player));
     manager.applyPendingScene();
 
     while (window.isOpen()) {

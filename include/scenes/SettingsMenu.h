@@ -6,7 +6,7 @@
 
 class SettingsMenu : public Scene {
 public:
-    SettingsMenu(SceneManager& _manager);
+    SettingsMenu(SceneManager& _manager, MusicPlayer* _music_player);
     ~SettingsMenu() override = default;
 
     void start() override;

@@ -1,12 +1,13 @@
 #pragma once
 
 #include <SFML/Graphics.hpp>
+#include "MusicPlayer.h"
 
 class SceneManager;
 
 class Scene {
 public:
-    explicit Scene(SceneManager& _manager) : manager(_manager) {}
+    explicit Scene(SceneManager& _manager, MusicPlayer* _music_player) : manager(_manager), music_player(_music_player) {}
     virtual ~Scene() = default;
 
     virtual void start() = 0;
@@ -15,6 +16,8 @@ public:
     virtual void render(sf::RenderWindow& window) = 0;
 protected:
     SceneManager& manager;
+    MusicPlayer* music_player;
+
 
     void makeText(std::optional<sf::Text>& slot,
                   const std::string& str,

@@ -2,6 +2,7 @@
 
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include <vector>
 #include <memory>
@@ -15,7 +16,7 @@
 
 class Game : public Scene {
 public:
-    Game(SceneManager& _manager);
+    Game(SceneManager& _manager, MusicPlayer* _music_player);
 
     void start() override;
     void update(float delta) override;

@@ -3,6 +3,7 @@
 #include <SFML/Graphics.hpp>
 #include "scenes/SceneManager.h"
 #include "GameConstants.h"
+#include "MusicPlayer.h"
 
 class App {
 public:
@@ -16,4 +17,5 @@ private:
     sf::RenderWindow window;
     SceneManager manager;
     sf::Clock clock;
+    MusicPlayer music_player;
 };

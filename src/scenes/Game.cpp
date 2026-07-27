@@ -7,7 +7,7 @@
 
 #include "Theme.h"
 
-Game::Game(SceneManager& _manager) : Scene(_manager) {
+Game::Game(SceneManager& _manager, MusicPlayer* _music_player) : Scene(_manager, _music_player) {
     camera = sf::View(sf::FloatRect(
         {0, 0},
         {GameConstants::SCREEN_WIDTH, GameConstants::SCREEN_HEIGHT}
@@ -47,6 +47,10 @@ Game::Game(SceneManager& _manager) : Scene(_manager) {
 }
 
 void Game::start() {
+    if (music_player) {
+        music_player->stop();
+    }
+
     const sf::Vector2f score_label_position = {20.f, 20.f};
     makeText(score_label, "", font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Bold);
     score_label->setPosition(score_label_position);
@@ -164,5 +168,5 @@ void Game::generateChunk() {
 
 void Game::handleGameOver() {
     GameSettings::getInstance().setHighScore(score);
-    manager.changeScene(std::make_unique<GameOverMenu>(manager));
+    manager.changeScene(std::make_unique<GameOverMenu>(manager, music_player));
 }

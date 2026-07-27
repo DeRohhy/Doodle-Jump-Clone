@@ -12,7 +12,7 @@
 
 #include <memory>
 
-GameOverMenu::GameOverMenu(SceneManager& _manager) : Scene(_manager) {
+GameOverMenu::GameOverMenu(SceneManager& _manager, MusicPlayer* _music_player) : Scene(_manager, _music_player) {
     game_over_buffer = ResourceManager<sf::SoundBuffer>::getInstance().get(GAME_OVER_SOUND_PATH);
     game_over_sound.emplace(game_over_buffer);
     
@@ -26,6 +26,10 @@ GameOverMenu::GameOverMenu(SceneManager& _manager) : Scene(_manager) {
 }
 
 void GameOverMenu::start() {
+    if (music_player) {
+        music_player->stop();
+    }
+
     game_over_sound->play();
 
     const sf::Vector2f title_position = {GameConstants::SCREEN_WIDTH / 2, 120.f};
@@ -61,9 +65,9 @@ void GameOverMenu::handleEvents(sf::RenderWindow& window) {
                 sf::Vector2i mouse_position = mouse_pressed->position;
                 
                 if (restart_button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_position))) {
-                    manager.changeScene(std::make_unique<Game>(manager));
+                    manager.changeScene(std::make_unique<Game>(manager, music_player));
                 } else if (menu_button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_position))) {
-                    manager.changeScene(std::make_unique<MainMenu>(manager));
+                    manager.changeScene(std::make_unique<MainMenu>(manager, music_player));
                 }
             }
         }

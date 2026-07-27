@@ -13,7 +13,7 @@
 #include <memory>
 
 
-MainMenu::MainMenu(SceneManager& _manager) : Scene(_manager) {
+MainMenu::MainMenu(SceneManager& _manager, MusicPlayer* _music_player) : Scene(_manager, _music_player) {
     background_texture = ResourceManager<sf::Texture>::getInstance().get(BACKGROUND_PATH);
     background_sprite.emplace(background_texture);
 
@@ -23,6 +23,10 @@ MainMenu::MainMenu(SceneManager& _manager) : Scene(_manager) {
 }
 
 void MainMenu::start() {
+    if (music_player && !music_player->isPlaying()) {
+        music_player->play();
+    }
+
     const sf::Vector2f title_position = {GameConstants::SCREEN_WIDTH / 2, 120.f};
     makeText(title, "Doodle Jump", font, Theme::FONT_TITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Bold);
     title->setPosition(title_position);
@@ -41,7 +45,21 @@ void MainMenu::start() {
     settings_button->setPosition(settings_button_position);
 
     const sf::Vector2f mode_position = {GameConstants::SCREEN_WIDTH / 2, 500.f};
-    makeText(mode, "Doodle Jump", font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Regular);
+    std::string difficulty = "Mode: ";
+    switch (GameSettings::getInstance().getDifficulty())
+    {
+        default:
+        case Difficulty::EASY:
+            difficulty += "Easy";
+            break;
+        case Difficulty::MEDIUM:
+            difficulty += "Medium";
+            break;
+        case Difficulty::HARD:
+            difficulty += "Hard";
+            break;
+    }
+    makeText(mode, difficulty, font, Theme::FONT_SUBTITLE, Theme::TEXT_PRIMARY, sf::Text::Style::Regular);
     mode->setPosition(mode_position);
 
 
@@ -66,9 +84,9 @@ void MainMenu::handleEvents(sf::RenderWindow& window) {
                 sf::Vector2i mouse_position = mouse_pressed->position;
                 
                 if (start_button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_position))) {
-                    manager.changeScene(std::make_unique<Game>(manager));
+                    manager.changeScene(std::make_unique<Game>(manager, music_player));
                 } else if (settings_button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_position))) {
-                    manager.changeScene(std::make_unique<SettingsMenu>(manager));
+                    manager.changeScene(std::make_unique<SettingsMenu>(manager, music_player));
                 }
             }
         } 

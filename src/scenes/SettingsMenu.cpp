@@ -9,7 +9,7 @@
 #include "scenes/MainMenu.h"
 
 
-SettingsMenu::SettingsMenu(SceneManager& _manager) : Scene(_manager) {
+SettingsMenu::SettingsMenu(SceneManager& _manager, MusicPlayer* _music_player) : Scene(_manager, _music_player) {
     background_texture = ResourceManager<sf::Texture>::getInstance().get(BACKGROUND_PATH);
     background_sprite.emplace(background_texture);
 
@@ -96,7 +96,7 @@ void SettingsMenu::handleEvents(sf::RenderWindow& window) {
                 handleDifficultyInteraction(static_cast<sf::Vector2f>(mouse_position));
                 
                 if (back_button->getGlobalBounds().contains(static_cast<sf::Vector2f>(mouse_position))) {
-                    manager.changeScene(std::make_unique<MainMenu>(manager));
+                    manager.changeScene(std::make_unique<MainMenu>(manager, music_player));
                 } 
             }
         } 

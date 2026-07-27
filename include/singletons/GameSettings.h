@@ -3,6 +3,7 @@
 #include "singletons/Singleton.h"
 #include <fstream>
 #include <string>
+#include <SFML/Audio.hpp>
 
 enum class Difficulty {
     EASY = 0,
@@ -31,7 +32,7 @@ public:
     }
 
     float getVolume() const { return volume; }
-    void setVolume(float new_volume) { volume = new_volume; }
+    void setVolume(float new_volume) { volume = new_volume; sf::Listener::setGlobalVolume(new_volume * 100); }
 
     Difficulty getDifficulty() const { return difficulty; }
     void setDifficulty(Difficulty new_difficulty) { difficulty = new_difficulty; }

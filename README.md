@@ -12,7 +12,7 @@ A simple Doodle Jump clone built with **C++** and **SFML 3.1.0**.
 ## Controls
 | Input | Action |
 | --- | --- |
-| `←` / `→` | Move left / right |
+| `A` / `D` | Move left / right |
 | `LMB` | Shoot |
 
 ## Requirements

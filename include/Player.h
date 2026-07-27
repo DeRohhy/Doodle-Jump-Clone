@@ -5,6 +5,7 @@
 #include "Bullet.h"
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <string>
 #include <optional>
 #include <deque>
@@ -17,8 +18,7 @@ enum PLAYER_STATE {
 
 class Player : public GameObject {
 public:
-    Player(sf::Vector2f _position, sf::Vector2f _velocity,  float _fire_rate)
-        : GameObject(_position, _velocity), fire_rate(_fire_rate) {}
+    Player(sf::Vector2f _position, sf::Vector2f _velocity,  float _fire_rate);
 
     sf::FloatRect getFeetBounds();
     sf::FloatRect getBodyBounds();
@@ -58,6 +58,10 @@ private:
     static constexpr float NOSE_LEN = 30.f;
     static constexpr float MIN_BULLET_SPEED = 700.f;
 
+    const std::string JUMP_SOUND_PATH = "sounds/jump_sound.wav";
+    const std::string SUPER_JUMP_SOUND_PATH = "sounds/super_jump_sound.mp3";
+    const std::string SHOOTING_SOUND_PATH = "sounds/shooting_sound.wav";
+
     sf::Texture right_doodle_texture;
     sf::Texture left_doodle_texture;
     sf::Texture shooting_pose_texture;
@@ -76,6 +80,13 @@ private:
 
     std::deque<std::unique_ptr<Bullet>> bullets;
 
+    sf::SoundBuffer jump_buffer;
+    sf::SoundBuffer super_jump_buffer;
+    sf::SoundBuffer shooting_buffer;
+
+    std::optional<sf::Sound> jump_sound;
+    std::optional<sf::Sound> super_jump_sound;
+    std::optional<sf::Sound> shooting_sound;
 
     void setPlayerState(PLAYER_STATE new_state);
     void drawDebugBounds(sf::RenderWindow& window, sf::FloatRect bounds);

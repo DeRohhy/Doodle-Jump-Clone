@@ -8,6 +8,21 @@
 #include <cmath>
 #include <numbers>
 #include <iostream>
+
+Player::Player(sf::Vector2f _position, sf::Vector2f _velocity,  float _fire_rate)
+        : GameObject(_position, _velocity), fire_rate(_fire_rate)
+{
+    auto& sound_loader = ResourceManager<sf::SoundBuffer>::getInstance();
+    jump_buffer = sound_loader.get(JUMP_SOUND_PATH);
+    super_jump_buffer = sound_loader.get(SUPER_JUMP_SOUND_PATH);
+    shooting_buffer = sound_loader.get(SHOOTING_SOUND_PATH);
+
+    jump_sound.emplace(jump_buffer);
+    super_jump_sound.emplace(super_jump_buffer);
+    shooting_sound.emplace(shooting_buffer);
+}
+
+
 sf::FloatRect Player::getFeetBounds() {
     if (!player_sprite) {
         return sf::FloatRect();
@@ -149,15 +164,18 @@ void Player::handleShooting() {
         bullets.push_front(std::move(new_bullet));
 
         setPlayerState(PLAYER_STATE::SHOOTING);
+        shooting_sound->play();
     }
 }
 
 void Player::handleJump() {
     velocity.y = -JUMP_FACTOR;
+    jump_sound->play();
 }
 
 void Player::handleSpringJump() {
     velocity.y = -SPRING_JUMP_FACTOR;
+    super_jump_sound->play();
 }
 
 void Player::setPlayerState(PLAYER_STATE new_state) {

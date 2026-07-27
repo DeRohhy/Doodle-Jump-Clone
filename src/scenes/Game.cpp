@@ -65,7 +65,8 @@ void Game::update(float delta) {
     if (new_score > score)
     {
         score = new_score;
-        score_label->setString("Score: " + std::to_string(score));
+        score_label->setString("Score: " + std::to_string(new_score));
+        GameSettings::getInstance().setLastScore(new_score);
     }
 
     player->update(delta);
@@ -162,7 +163,6 @@ void Game::generateChunk() {
 }
 
 void Game::handleGameOver() {
-    GameSettings::getInstance().setLastScore(score);
     GameSettings::getInstance().setHighScore(score);
     manager.changeScene(std::make_unique<GameOverMenu>(manager));
 }

@@ -28,7 +28,7 @@ public:
 private:
     static constexpr float SIDE_MARGIN = 50.f;
 
-    static constexpr float MIN_OBJ_GAP = 100.f;
+    static constexpr float MIN_OBJ_GAP = 60.f;
     static constexpr float MAX_OBJ_GAP = 275.f;
 
     static constexpr float BROKEN_PLATFORM_SPAWN_CHANCE = 0.1;
@@ -56,6 +56,8 @@ private:
     static constexpr int ENEMY_HEALTH_HARD = 3;
 
     static constexpr float SMALL_HOLE_SPAWN_CHANCE = 0.5f;
+
+    static constexpr int MIN_SCORE_FOR_HAZARDS = 2500;
     
 
     Player* player;
@@ -73,7 +75,7 @@ private:
     void tryGenerateBrokenPlatform(float y);
 
     float getRandomGap();
-    void handleCollisions();
+    void handleCollisions(float delta);
     void removeOffScreenObjects();
 
     void generateNormalPlatform(float x, float y, bool spawn_spring);
@@ -85,6 +87,8 @@ private:
 
     void generateMovingEnemy(float y);
     void generateStationaryEnemy(float y);
+
+    bool isHazardUnfair(sf::FloatRect hazard_bound, sf::FloatRect platform_bound);
 
     bool game_over = false;
 };

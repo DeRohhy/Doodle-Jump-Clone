@@ -29,7 +29,7 @@ void Chunk::start() {
 }
 
 void Chunk::update(float delta) {
-    handleCollisions();
+    handleCollisions(delta);
     removeOffScreenObjects();
     for (const auto& platform: platforms) {
         platform->update(delta);
@@ -67,6 +67,21 @@ void Chunk::render(sf::RenderWindow& window) {
 }
 
 void Chunk::spawnRow(float y, const float last_gap) {
+    const bool spawn_hazard = random_generator.randomFloatRange(0, 1) < SPAWN_HAZARD_CHANCE;
+    int current_score = GameSettings::getInstance().getLastScore();
+
+    if (spawn_hazard && last_gap >= MIN_PLATFROM_GAP_FOR_HAZARD && current_score > MIN_SCORE_FOR_HAZARDS) {
+        const bool spawn_enemy = random_generator.randomFloatRange(0, 1) < ENEMY_SPAWN_CHANCE;
+
+        float hazard_y = y + last_gap / 2.f;
+
+        if (spawn_enemy) {
+            generateEnemy(hazard_y);
+        } else if (GameSettings::getInstance().getDifficulty() == Difficulty::HARD) {
+            tryGenerateHole(hazard_y);
+        }
+    }
+
     const float x = random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN);
 
     const bool spawn_moving_platform = random_generator.randomFloatRange(0, 1) < MOVING_PLATFORM_SPAWN_CHANCE;
@@ -85,19 +100,7 @@ void Chunk::spawnRow(float y, const float last_gap) {
     }
 
     
-    const bool spawn_hazard = random_generator.randomFloatRange(0, 1) < SPAWN_HAZARD_CHANCE;
 
-    if (spawn_hazard && last_gap >= MIN_PLATFROM_GAP_FOR_HAZARD) {
-        const bool spawn_enemy = random_generator.randomFloatRange(0, 1) < ENEMY_SPAWN_CHANCE;
-
-        float hazard_y = y + last_gap / 2.f;
-
-        if (spawn_enemy) {
-            generateEnemy(hazard_y);
-        } else {
-            tryGenerateHole(hazard_y);
-        }
-    }
     
 }
 
@@ -112,10 +115,23 @@ float Chunk::getRandomGap() {
     return random_generator.randomFloatRange(MIN_OBJ_GAP, MAX_OBJ_GAP);
 }
 
-void Chunk::handleCollisions() {
+void Chunk::handleCollisions(float delta) {
     const sf::FloatRect player_feet = player->getFeetBounds();
     const sf::FloatRect player_body = player->getBodyBounds();
     const bool is_player_falling = player->getVelocity().y > 0;
+
+    for (const auto& hole: holes) {
+        bool is_colliding = static_cast<bool>(player_feet.findIntersection(hole->getBounds()));
+        if (is_colliding) {
+            sf::Vector2f hold_center = hole->getCenterPoint();
+            player->freezePlayer();
+            player->playHoleDeathAnimation(hold_center, delta);
+            if (player->isPlayerFullyShrinked()) {
+                game_over = true;
+            }
+            return;
+        }
+    }
 
     for (auto const& platform: platforms) {
         bool is_colliding = static_cast<bool>(player_feet.findIntersection(platform->getBounds()));
@@ -150,7 +166,6 @@ void Chunk::handleCollisions() {
         }
     }
 
-
     for (auto it = bullets->begin(); it != bullets->end(); ++it) {
         sf::FloatRect bullet_bounds = (*it)->getBounds();
 
@@ -177,6 +192,7 @@ void Chunk::handleCollisions() {
             break;
         }
     }
+
 }
 
 void Chunk::removeOffScreenObjects() {
@@ -272,7 +288,7 @@ void Chunk::generateEnemy(float y) {
         break;
     }
 
-    const sf::Vector2f enemy_position = {random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN), y};
+    sf::Vector2f enemy_position = {random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN), y};
 
     if (spawn_moving_enemy) {
         const float speed = random_generator.randomFloatRange(MIN_MOVING_ENEMY_SPEED, MAX_MOVING_ENEMY_SPEED);
@@ -280,17 +296,40 @@ void Chunk::generateEnemy(float y) {
         new_enemy->start();
         enemies.push_front(std::move(new_enemy));
     } else {
-        std::unique_ptr new_enemy = std::make_unique<StationaryEnemy>(enemy_position, health);
-        new_enemy->start();
-        enemies.push_front(std::move(new_enemy));
+        static constexpr int MAX_ATTEMPS = 10;
+        for (int i = 0; i < MAX_ATTEMPS; i++)
+        {
+            std::unique_ptr new_enemy = std::make_unique<StationaryEnemy>(enemy_position, health);
+            new_enemy->start();
+            if (!isHazardUnfair(new_enemy->getBounds(), platforms.front()->getBounds())) {
+                enemies.push_front(std::move(new_enemy));
+                break;
+            }
+            enemy_position.x = random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN);
+        }
     }
 }
 
 void Chunk::tryGenerateHole(float y) {
+    constexpr int MAX_ATTEMPTS = 10;
     const bool spawn_small_hole = random_generator.randomFloatRange(0, 1) < SMALL_HOLE_SPAWN_CHANCE;
-    const sf::Vector2f hole_position = {random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN), y};
+    
+    sf::Vector2f hole_position = {random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN), y};
+    for (int i = 0; i < MAX_ATTEMPTS; i++) {
+        std::unique_ptr new_hole = std::make_unique<Hole>(hole_position, spawn_small_hole);
+        new_hole->start();
 
-    std::unique_ptr new_hole = std::make_unique<Hole>(hole_position, spawn_small_hole);
-    new_hole->start();
-    holes.push_front(std::move(new_hole));
+        if (!isHazardUnfair(new_hole->getBounds(), platforms.front()->getBounds())){
+            holes.push_front(std::move(new_hole));
+            break;
+        }
+
+        hole_position.x = random_generator.randomFloatRange(SIDE_MARGIN, GameConstants::SCREEN_WIDTH - SIDE_MARGIN);
+    }
+}
+
+bool Chunk::isHazardUnfair(sf::FloatRect hazard_bound, sf::FloatRect platform_bound) {
+    hazard_bound.position.y = platform_bound.position.y;
+
+    return static_cast<bool>(hazard_bound.findIntersection(platform_bound));
 }
